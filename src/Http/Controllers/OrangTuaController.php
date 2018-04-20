@@ -10,6 +10,7 @@ use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
 use App\User;
 /* Etc */
 use Validator;
+use Auth;
 /**
  * The OrangTuaController class.
  *
@@ -113,12 +114,12 @@ class OrangTuaController extends Controller
             'alamat_ortu'   => 'required',
         ]);
         if($validator->fails()){
-            $check = $orang_tua->where('user_id',$request->user_id)->orWhere('nomor_un',$request->nomor_un)->orWhere('no_telp',$request->no_telp)->whereNull('deleted_at')->count();
+            $check = $orang_tua->where('user_id',Auth::User()->id)->orWhere('nomor_un',Auth::User()->name)->orWhere('no_telp',$request->no_telp)->whereNull('deleted_at')->count();
             if ($check > 0) {
                 $response['message'] = 'Failed ! Username, Nama Siswa, Nomor Telp already exists';
             } else {
-            $orang_tua->user_id = $request->input('user_id');
-            $orang_tua->nomor_un = $request->input('nomor_un');
+            $orang_tua->user_id = Auth::User()->id;
+            $orang_tua->nomor_un = Auth::User()->name;
             $orang_tua->no_telp = $request->input('no_telp');
             $orang_tua->nama_ayah = $request->input('nama_ayah');
             $orang_tua->nama_ibu = $request->input('nama_ibu');
@@ -131,8 +132,8 @@ class OrangTuaController extends Controller
             $response['message'] = 'success';
             }
             } else {
-            $orang_tua->user_id = $request->input('user_id');
-            $orang_tua->nomor_un = $request->input('nomor_un');
+            $orang_tua->user_id = Auth::User()->id;
+            $orang_tua->nomor_un = Auth::User()->name;
             $orang_tua->no_telp = $request->input('no_telp');
             $orang_tua->nama_ayah = $request->input('nama_ayah');
             $orang_tua->nama_ibu = $request->input('nama_ibu');

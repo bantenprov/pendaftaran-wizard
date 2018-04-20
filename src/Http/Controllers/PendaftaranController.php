@@ -10,6 +10,7 @@ use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Kegiatan;
 use App\User;
 /* Etc */
 use Validator;
+use Auth;
 /**
  * The PendaftaranController class.
  *
@@ -99,7 +100,7 @@ class PendaftaranController extends Controller
     {
         $tgl_pendaftaran = Carbon::now(new \DateTimeZone('Asia/Jakarta'));
         $pendaftaran = $this->pendaftaran;
-        $current_user_id = $request->user_id;
+        $current_user_id = Auth::User()->id;
         $validator = Validator::make($request->all(), [
             'kegiatan_id' => 'required',
             'user_id' => 'required|max:16|unique:pendaftarans,user_id',
