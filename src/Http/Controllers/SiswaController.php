@@ -163,8 +163,8 @@ class SiswaController extends Controller
             $error      = true;
             $message    = $validator->errors()->first();
         } else {
-            $siswa->user_id         = $request->input('user_id');
-            $siswa->nomor_un        = $request->input('nomor_un');
+            $siswa->user_id         = Auth::User()->id;
+            $siswa->nomor_un        = Auth::User()->name;
             $siswa->nik             = $request->input('nik');
             $siswa->nama_siswa      = $request->input('nama_siswa');
             $siswa->no_kk           = $request->input('no_kk');
