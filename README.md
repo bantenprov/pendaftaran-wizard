@@ -16,7 +16,7 @@
 - Development snapshot
 
 ```bash
-$ composer require bantenprov/pendaftaran-wizard:dev-master
+$ composer require bantenprov/pendaftaran-wizard:dev-single
 ```
 
 - Latest release:
