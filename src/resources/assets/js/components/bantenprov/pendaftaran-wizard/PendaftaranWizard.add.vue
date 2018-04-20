@@ -25,12 +25,27 @@
             </div>
           </div>
 
-        <div class="form-row mt-4">
+          <div class="form-row mt-4">
+            <div class="col-md">
+              <validate tag="div">
+              <label for="kegiatan">Kegiatan</label>
+              <v-select name="kegiatan" required v-model="model.kegiatan" :options="kegiatan" placeholder="Select Kegiatan"></v-select>
+
+              <field-messages name="kegiatan" show="$invalid && $submitted" class="text-danger">
+                <small class="form-text text-success">Looks good!</small>
+                <small class="form-text text-danger" slot="required">Kegiatan is a required field</small>
+              </field-messages>
+              </validate>
+            </div>
+          </div>
+
+        <!-- <div class="form-row mt-4">
+
           <div class="col-md">
             <label for="kegiatan">Kegiatan</label>
             <v-select name="kegiatan" required v-model="model.kegiatan" :options="kegiatan" placeholder="Select Kegiatan"></v-select>
           </div>
-        </div>
+        </div> -->
 
         <div class="form-row mt-4">
 					<div class="col-md">
@@ -821,7 +836,7 @@ export default {
       };
     },
     back() {
-      window.location = '#/admin/pendaftaran-wizard';
+      window.location = '#/admin/pendaftaran-wizard/create';
     }
   }
 }

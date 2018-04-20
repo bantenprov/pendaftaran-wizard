@@ -16,6 +16,7 @@ use Validator;
  * @package Bantenprov\Pendaftaran
  * @author  bantenprov <developer.bantenprov@gmail.com>
  */
+
 class PendaftaranController extends Controller
 {
     /**
@@ -96,6 +97,7 @@ class PendaftaranController extends Controller
      */
     public function store(Request $request)
     {
+        $tgl_pendaftaran = Carbon::now(new \DateTimeZone('Asia/Jakarta'));
         $pendaftaran = $this->pendaftaran;
         $current_user_id = $request->user_id;
         $validator = Validator::make($request->all(), [
@@ -110,14 +112,14 @@ class PendaftaranController extends Controller
             } else {
                 $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
                 $pendaftaran->user_id = $current_user_id;
-                $pendaftaran->tanggal_pendaftaran = $request->input('tanggal_pendaftaran');
+                $pendaftaran->tanggal_pendaftaran = $tgl_pendaftaran;
                 $pendaftaran->save();
                 $response['message'] = 'success';
             }
         } else {
             $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
             $pendaftaran->user_id = $current_user_id;
-            $pendaftaran->tanggal_pendaftaran = $request->input('tanggal_pendaftaran');
+            $pendaftaran->tanggal_pendaftaran = $tgl_pendaftaran;
             $pendaftaran->save();
             $response['message'] = 'success';
         }
