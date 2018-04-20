@@ -82,47 +82,181 @@ $ php artisan vendor:publish --tag=pendaftaran-wizard-assets
  
 
 ```javascript
-{
-    path: '/admin',
-    redirect: '/admin/dashboard/home',
-    component: layout('Default'),
-    children: [
-        //== ...
+function layout(name) {
+  return function(resolve) {
+    require(['../layouts/' + name + '.vue'], resolve);
+  }
+}
+
+export default ({ authGuard, guestGuard }) => [
+
+  {
+    path: '/',
+    name: 'home',
+    component: resolve => require(['~/components/views/Home.vue'], resolve),
+    meta: {
+      title: "Tanara"
+    }
+  },
+
+  // Authenticated routes.
+  ...authGuard([
+    {
+      path: '/profile',
+      component: layout('Default'),
+      children: [
         {
-            path: '/admin/pendaftaran-wizard/create',
-            name: 'siswa.pendaftaran-wizard',
-            components: {
-                main: resolve => require(['./components/bantenprov/pendaftaran-wizard/PendaftaranWizard.add.vue'], resolve),
-                navbar: resolve => require(['./components/Navbar.vue'], resolve),
-                sidebar: resolve => require(['./components/Sidebar.vue'], resolve)
-            },
-            meta: {
-                title: "Formulir Pendaftaran"
-            }
+          path: '/profile',
+          name: 'profile',
+          components: {
+            main: resolve => require(['~/components/views/Profile.vue'], resolve),
+            navbar: resolve => require(['~/components/Navbar.vue'], resolve),
+            sidebar: resolve => require(['~/components/Sidebar.vue'], resolve)
+          },
+          meta: {
+            title: "Profile"
+          }
+        }
+      ]
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      redirect: '/settings/user-profile',
+      component: layout('Default'),
+      children: [
+        {
+          path: '/settings/user-profile',
+          name: 'settings.user-profile',
+          components: {
+            main: resolve => require(['~/components/views/settings/UserProfile.vue'], resolve),
+            navbar: resolve => require(['~/components/Navbar.vue'], resolve),
+            sidebar: resolve => require(['~/components/Sidebar.vue'], resolve)
+          },
+          meta: {
+            title: "Profile Settings"
+          }
         },
-         
-        //== ...
-    ]
-},
+        {
+          path: '/settings/user-password',
+          name: 'settings.user-password',
+          components: {
+            main: resolve => require(['~/components/views/settings/UserPassword.vue'], resolve),
+            navbar: resolve => require(['~/components/Navbar.vue'], resolve),
+            sidebar: resolve => require(['~/components/Sidebar.vue'], resolve)
+          },
+          meta: {
+            title: "Change Password"
+          }
+        }
+      ]
+    },
+    {
+      path: '/dashboard',
+      component: layout('Default'),
+      children: [
+        {
+          path: '/dashboard',
+          name: 'siswa.pendaftaran-wizard',
+          components: {
+            main: resolve => require(['~/components/bantenprov/pendaftaran-wizard/PendaftaranWizard.add.vue'], resolve),
+            navbar: resolve => require(['~/components/Navbar.vue'], resolve),
+            sidebar: resolve => require(['~/components/Sidebar.vue'], resolve)
+          },
+          meta: {
+            title: "Formulir Pendaftaran"
+          }
+        },
+        {
+          path: '/dashboard/formulir-pendaftaran',
+          components: {
+            main: resolve => require(['~/components/bantenprov/pendaftaran-wizard/PendaftaranWizard.add.vue'], resolve),
+            navbar: resolve => require(['~/components/Navbar.vue'], resolve),
+            sidebar: resolve => require(['~/components/Sidebar.vue'], resolve)
+          },
+          meta: {
+              title: "Formulir Pendaftaran"
+          }
+        }
+      ]
+    },
+  ]),
+
+  // Guest routes.
+  ...guestGuard([
+    {
+      path: '/login',
+      name: 'login',
+      component: resolve => require(['~/components/views/auth/Login.vue'], resolve),
+      meta: {
+        title: "Log In"
+      }
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: resolve => require(['~/components/views/auth/Register.vue'], resolve),
+      meta: {
+        title: "Register"
+      }
+    },
+    {
+      path: '/password/reset',
+      name: 'password.request',
+      component: resolve => require(['~/components/views/auth/password/Email.vue'], resolve),
+      meta: {
+        title: "Reset Password"
+      }
+    },
+    {
+      path: '/password/reset/:token',
+      name: 'password.reset',
+      component: resolve => require(['~/components/views/auth/password/Reset.vue'], resolve),
+      meta: {
+        title: "Reset Password"
+      }
+    }
+  ]),
+
+  {
+    path: '*',
+    name: 'errors.404',
+    component: resolve => require(['~/components/views/errors/404.vue'], resolve),
+    meta: {
+      title: "Page Not Found"
+    }
+  }
+]
+
 ```
 #### Edit menu `resources/assets/js/menu.js`
  
 
 ```javascript
-{
-    name: 'Admin',
-    icon: 'fa fa-lock',
+// childType: 'collapse|dropdown|dropup'
+
+const MenuItems = [
+  {
+    name: 'Home',
+    link: '/',
+    icon: 'fa fa-home'
+  },
+  {
+    name: 'Siswa',
+    icon: 'fa fa-user',
     childType: 'collapse',
     childItem: [
-        //== ...
-        {
+      {
         name: 'Formulir Pendaftaran',
-        link: '/admin/pendaftaran-wizard/create',
+        link: '/dashboard',
         icon: 'fa fa-angle-double-right'
-        },
-        //== ...
+      }
     ]
-},
+  },
+];
+
+export default MenuItems;
+
 ```
 
 #### Tambahkan components `resources/assets/js/components.js` :
