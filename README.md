@@ -31,6 +31,23 @@ $ composer require bantenprov/pendaftaran-wizard
 $ git clone https://github.com/bantenprov/pendaftaran-wizard.git
 ```
 
+### install node module :
+
+<a href="http://momentjs.com/timezone/"> moment-timezone </a>
+```
+npm install moment-timezone --save
+```
+
+<a href="https://www.npmjs.com/package/vue-momentjs"> vue-momentjs </a>
+```
+npm i vue-momentjs
+```
+
+<a href="https://github.com/brockpetrie/vue-moment"> vue-moment </a>
+```
+npm install --save vue-moment
+```
+
 #### Edit `config/app.php` :
 
 ```php
@@ -73,7 +90,7 @@ $ php artisan vendor:publish --tag=pendaftaran-wizard-assets
         //== ...
         {
             path: '/admin/pendaftaran-wizard/create',
-            name: 'pendaftaran-wizard',
+            name: 'siswa.pendaftaran-wizard',
             components: {
                 main: resolve => require(['./components/bantenprov/pendaftaran-wizard/PendaftaranWizard.add.vue'], resolve),
                 navbar: resolve => require(['./components/Navbar.vue'], resolve),
@@ -117,3 +134,4 @@ import PendaftaranWizardAdminShow from './components/bantenprov/pendaftaran-wiza
 Vue.component('admin-view-pendaftaran-wizard-tahun', PendaftaranWizardAdminShow);
 
  
+
