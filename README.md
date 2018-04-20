@@ -31,6 +31,24 @@ $ composer require bantenprov/pendaftaran-wizard
 $ git clone https://github.com/bantenprov/pendaftaran-wizard.git
 ```
 
+### install module :
+
+```bash
+composer require bantenprov/vue-workflow:dev-master
+```
+
+### edit `config/app.php` ( vue-workflow )
+```php
+'providers' => [
+        Emadadly\LaravelUuid\LaravelUuidServiceProvider::class,
+        Bantenprov\VueWorkflow\VueWorkflowServiceProvider::class,
+```
+
+### artisan command ( vue-workflow )
+```bash
+php artisan vendor:publish --provider="Emadadly\LaravelUuid\LaravelUuidServiceProvider"
+```
+
 ### install node module :
 
 <a href="http://momentjs.com/timezone/"> moment-timezone </a>

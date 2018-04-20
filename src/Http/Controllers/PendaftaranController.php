@@ -11,6 +11,10 @@ use App\User;
 /* Etc */
 use Validator;
 use Auth;
+
+/* Workflow Trait */
+use Bantenprov\VueWorkflow\Http\Traits\WorkflowTrait;
+
 /**
  * The PendaftaranController class.
  *
@@ -20,6 +24,8 @@ use Auth;
 
 class PendaftaranController extends Controller
 {
+    use WorkflowTrait;
+
     /**
      * Create a new controller instance.
      *
@@ -111,17 +117,32 @@ class PendaftaranController extends Controller
             if ($check > 0) {
                 $response['message'] = 'Failed, User already exists';
             } else {
-                $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
+
+                /* $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
                 $pendaftaran->user_id = $current_user_id;
                 $pendaftaran->tanggal_pendaftaran = $tgl_pendaftaran;
-                $pendaftaran->save();
+                $pendaftaran->save(); */
+
+                $pendaftaran_save['kegiatan_id'] = $request->input('kegiatan_id');
+                $pendaftaran_save['user_id'] = $current_user_id;
+                $pendaftaran_save['tanggal_pendaftaran'] = $tgl_pendaftaran;
+
+                $this->insertWithWorkflow($pendaftaran, $pendaftaran_save);
+
                 $response['message'] = 'success';
             }
         } else {
-            $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
+            /* $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
             $pendaftaran->user_id = $current_user_id;
             $pendaftaran->tanggal_pendaftaran = $tgl_pendaftaran;
-            $pendaftaran->save();
+            $pendaftaran->save(); */
+
+            $pendaftaran_save['kegiatan_id'] = $request->input('kegiatan_id');
+            $pendaftaran_save['user_id'] = $current_user_id;
+            $pendaftaran_save['tanggal_pendaftaran'] = $tgl_pendaftaran;
+
+            $this->insertWithWorkflow($pendaftaran, $pendaftaran_save);
+
             $response['message'] = 'success';
         }
         $response['status'] = true;

@@ -836,9 +836,10 @@ export default {
       };
     },
     back() {
-      window.location = '#/admin/pendaftaran-wizard/create';
+      window.location = '#/dashboard';
     }
   }
 }
 </script>
+
 
