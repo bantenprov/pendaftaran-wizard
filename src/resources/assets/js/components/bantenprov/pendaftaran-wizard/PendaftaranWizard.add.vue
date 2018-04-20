@@ -821,7 +821,7 @@ export default {
       };
     },
     back() {
-      window.location = '#/admin/pendaftaran';
+      window.location = '#/admin/pendaftaran-wizard';
     }
   }
 }
