@@ -78,7 +78,7 @@ $ composer dump-autoload
 ```bash
 $ php artisan vendor:publish --tag=pendaftaran-wizard-assets
 ```
-#### Tambahkan route di dalam file : `resources/assets/js/routes.js` :
+#### Edit route : `resources/assets/js/routes.js` :
  
 
 ```javascript
