@@ -3,12 +3,12 @@ namespace Bantenprov\PendaftaranWizard\Http\Controllers;
 /* Require */
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Bantenprov\OrangTua\Facades\OrangTuaFacade;
 /* Models */
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\OrangTua;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
 use App\User;
 /* Etc */
+
 use Validator;
 use Auth;
 /**
@@ -103,7 +103,7 @@ class OrangTuaController extends Controller
         $orang_tua = $this->orang_tua;
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|unique:orangtuas,user_id',
-            'nomor_un' => 'required|unique:orangtuas,nomor_un',
+            'nomor_un' => 'unique:orangtuas,nomor_un',
             'no_telp'   => 'required|unique:orangtuas,no_telp',
             'nama_ayah'   => 'required',
             'nama_ibu'   => 'required',

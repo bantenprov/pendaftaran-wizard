@@ -5,7 +5,6 @@ namespace Bantenprov\PendaftaranWizard\Http\Controllers;
 /* Require */
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Bantenprov\BudgetAbsorption\Facades\PendaftaranWizardFacade;
 
 
 /* Models */
@@ -87,9 +86,9 @@ class PendaftaranWizardController extends Controller
      */
     public function create()
     {
-        $kegiatan = $this->kegiatanModel->all();
-        $users_special = $this->user->all();
-        $users_standar = $this->user->find(\Auth::User()->id);
+        $kegiatan       = $this->kegiatanModel->all();
+        $users_special  = $this->user->all();
+        $users_standar  = $this->user->find(\Auth::User()->id);
 
         $role_check = \Auth::User()->hasRole(['superadministrator','administrator']);
 
@@ -105,8 +104,8 @@ class PendaftaranWizardController extends Controller
             $response['user'] = $users_standar;
         }
 
-        $response['kegiatan'] = $kegiatan;
-        $response['status'] = true;
+        $response['kegiatan']   = $kegiatan;
+        $response['status']     = true;
 
         return response()->json($response);
     }
