@@ -7,6 +7,11 @@ use Carbon\Carbon;
 /* Models */
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Pendaftaran;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Kegiatan;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\OrangTua;
+use Bantenprov\VueWorkflow\Models\History;
+use Bantenprov\VueWorkflow\Models\State;
+use App\DataAkademik;
 use App\User;
 /* Etc */
 use Validator;
@@ -33,12 +38,21 @@ class PendaftaranController extends Controller
      */
     protected $kegiatanModel;
     protected $pendaftaran;
+    protected $siswa;
+    protected $orang_tua;
     protected $user;
-    public function __construct(Pendaftaran $pendaftaran, Kegiatan $kegiatan, User $user)
+    protected $data_akademik;
+
+    public function __construct(Pendaftaran $pendaftaran, Kegiatan $kegiatan, User $user, Siswa $siswa, OrangTua $orang_tua, DataAkademik $data_akademik, History $history, State $state)
     {
         $this->pendaftaran      = $pendaftaran;
         $this->kegiatanModel    = $kegiatan;
+        $this->siswa            = $siswa;
+        $this->orang_tua        = $orang_tua;
         $this->user             = $user;
+        $this->data_akademik    = $data_akademik;
+        $this->history          = $history;
+        $this->state            = $state;
     }
     /**
      * Display a listing of the resource.
@@ -73,12 +87,13 @@ class PendaftaranController extends Controller
      */
     public function create()
     {
-        $response = [];
-        $kegiatan = $this->kegiatanModel->all();
-        $users_special = $this->user->all();
-        $users_standar = $this->user->find(\Auth::User()->id);
-        $current_user = \Auth::User();
-        $role_check = \Auth::User()->hasRole(['superadministrator','administrator']);
+        $response       = [];
+        $kegiatan       = $this->kegiatanModel->all();
+        $users_special  = $this->user->all();
+        $users_standar  = $this->user->find(\Auth::User()->id);
+        $check_daftar   = $this->pendaftaran->where('user_id', \Auth::user()->id)->count();
+        $current_user   = \Auth::User();
+        $role_check     = \Auth::User()->hasRole(['superadministrator','administrator']);
         if($role_check){
             $response['user_special'] = true;
             foreach($users_special as $user){
@@ -86,14 +101,21 @@ class PendaftaranController extends Controller
             }
             $response['user'] = $users_special;
         }else{
-            $response['user_special'] = false;
+            $response['user_special']   = false;
             array_set($users_standar, 'label', $users_standar->name);
-            $response['user'] = $users_standar;
+            $response['user']           = $users_standar;
         }
         array_set($current_user, 'label', $current_user->name);
-        $response['current_user'] = $current_user;
-        $response['kegiatan'] = $kegiatan;
-        $response['status'] = true;
+
+        if($check_daftar > 0 ){
+            $response['data_terdaftar']    = $this->getDataTerdaftar();
+        }
+
+
+        $response['terdaftar']      = ($check_daftar > 0) ? true : false;
+        $response['current_user']   = $current_user;
+        $response['kegiatan']       = $kegiatan;
+        $response['status']         = true;
         return response()->json($response);
     }
     /**
@@ -148,6 +170,89 @@ class PendaftaranController extends Controller
         $response['status'] = true;
         return response()->json($response);
     }
+
+    public function getDataTerdaftar(){
+        $pendaftaran = $this->pendaftaran;
+        // $siswa       = $this->siswa;
+        $orang_tua   = $this->orang_tua;
+
+        $response['pendaftaran']    = $this->pendaftaran->where('user_id', \Auth::user()->id)->with('kegiatan')->first();
+
+        $siswa = $this->siswa->with(['province', 'city', 'district', 'village', 'sekolah', 'prodi_sekolah', 'user'])->where('nomor_un',  \Auth::user()->name)->first();
+
+        if (isset($siswa->prodi_sekolah->program_keahlian)) {
+            $siswa->prodi_sekolah->program_keahlian;
+        }
+
+        $response['orang_tua'] = $orang_tua->where('nomor_un', \Auth::user()->name)->first();
+
+        array_add($siswa->sekolah, 'label', $siswa->sekolah->nama);
+        array_add($siswa->province, 'label', $siswa->province->name);
+        array_add($siswa->city, 'label', $siswa->city->name);
+        array_add($siswa->district, 'label', $siswa->district->name);
+        array_add($siswa->village, 'label', $siswa->village->name);
+
+
+        $response['siswa']      = $siswa;
+
+        $response['nilai_un']   = $this->data_akademik->where('nomor_un',\Auth::user()->name)->first();
+
+        $history = $this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->first();
+
+        $status_now = '';
+        if($this->state->find($history->to_state)->label == "Propose"){
+            $status_now = "Terdaftar";
+        }
+
+        $response['status_now'] = $status_now;
+
+
+        return $response;
+
+        // $response['siswa']    = $this->siswa->where('user_id', \Auth::user()->id)->first();
+    }
+
+    public function checkPeserta($nomor_un){
+        $pendaftaran = $this->pendaftaran;
+        // $siswa       = $this->siswa;
+        $orang_tua   = $this->orang_tua;
+
+        // $response['pendaftaran']    = $this->pendaftaran->where('user_id', \Auth::user()->id)->with('kegiatan')->first();
+
+        $siswa = $this->siswa->with(['province', 'city', 'district', 'village', 'sekolah', 'prodi_sekolah', 'user'])->where('nomor_un',  $nomor_un)->first();
+
+        if (isset($siswa->prodi_sekolah->program_keahlian)) {
+            $siswa->prodi_sekolah->program_keahlian;
+        }
+
+        $response['orang_tua'] = $orang_tua->where('nomor_un', $nomor_un)->first();
+
+        array_add($siswa->sekolah, 'label', $siswa->sekolah->nama);
+        array_add($siswa->province, 'label', $siswa->province->name);
+        array_add($siswa->city, 'label', $siswa->city->name);
+        array_add($siswa->district, 'label', $siswa->district->name);
+        array_add($siswa->village, 'label', $siswa->village->name);
+
+
+        $response['siswa']      = $siswa;
+
+        $response['nilai_un']   = $this->data_akademik->where('nomor_un',$nomor_un)->first();
+
+        $history = $this->history->where('user_id', $siswa->user_id)->orderBy('id', 'desc')->first();
+
+        $status_now = '';
+        if($this->state->find($history->to_state)->label == "Propose"){
+            $status_now = "Terdaftar";
+        }
+
+        $response['status_now'] = $status_now;
+
+
+        return $response;
+
+        // $response['siswa']    = $this->siswa->where('user_id', \Auth::user()->id)->first();
+    }
+
     /**
      * Store a newly created resource in storage.
      *
