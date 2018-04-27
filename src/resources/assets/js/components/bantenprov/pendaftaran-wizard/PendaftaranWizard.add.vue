@@ -69,7 +69,8 @@
           <div class="col-md">
             <validate tag="div">
             <label for="model.nik">NIK</label>
-            <input class="form-control" v-model="model.nik" required autofocus name="nik" type="number" placeholder="NIK">
+              <input class="form-control" v-model="model.nik" required autofocus name="nik" type="number" placeholder="NIK" v-mask="'##-##-####-####-######'"  >
+             
             <field-messages name="nik" show="$invalid && $submitted" class="text-danger">
               <small class="form-text text-danger" slot="required">NIK is a required field</small>
             </field-messages>
@@ -94,7 +95,8 @@
           <div class="col-md">
             <validate tag="div">
             <label for="model.no_kk">Nomor Kartu Keluarga</label>
-            <input class="form-control" v-model="model.no_kk" required autofocus name="no_kk" type="number" placeholder="Nomor KK">
+               <input class="form-control" v-model="model.no_kk" required autofocus name="no_kk" type="number" v-mask="'################'" placeholder="Nomor Kartu Keluarga" >
+            
             <field-messages name="no_kk" show="$invalid && $submitted" class="text-danger">
               <small class="form-text text-danger" slot="required">Nomor KK is a required field</small>
             </field-messages>
@@ -227,7 +229,7 @@
             <div class="col-md">
               <validate tag="div">
               <label for="model.no_telp">Nomor Telepon</label>
-              <input class="form-control" v-model="model.no_telp" required autofocus name="no_telp" type="number" placeholder="Nomor Telp">
+              <input class="form-control" v-model="model.no_telp" required autofocus name="no_telp" type="tel" v-mask="'(###)-######-####'"  placeholder="Nomor Telp">
               <field-messages name="no_telp" show="$invalid && $submitted" class="text-danger">
                 <small class="form-text text-danger" slot="required">Nomor Telp is a required field</small>
               </field-messages>
@@ -342,7 +344,9 @@
 <script>
 import VueMoment from 'vue-moment'
 import moment from 'moment-timezone'
-
+//Add Vue Mask https://vuejs-tips.github.io/vue-the-mask/
+import VueTheMask from 'vue-the-mask'
+Vue.use(VueTheMask)
 Vue.use(VueMoment, {
     moment,
 })
