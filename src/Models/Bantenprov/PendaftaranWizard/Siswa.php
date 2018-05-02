@@ -27,7 +27,8 @@ class Siswa extends Model
         'nisn',
         'tahun_lulus',
         'sekolah_id',
-        'user_id'
+        'user_id',
+        'kegiatan_id'
     ];
     public function province()
     {
