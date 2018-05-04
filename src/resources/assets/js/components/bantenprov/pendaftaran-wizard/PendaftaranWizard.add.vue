@@ -467,7 +467,7 @@
       <tab-content title="Review"  icon="fa fa-list">
         <div class="card mb-3" id="cetak">
           <div class="card-header d-flex flex-row align-items-center justify-content-between">
-            Review
+            <span id="head">Review</span>
             <button class="btn btn-sm btn-secondary ml-1" id="tombol_cetak" type="button" @click="cetak">
               <i class="fa fa-print" aria-hidden="true"></i> print
             </button>
@@ -815,6 +815,7 @@ export default {
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
       <body >`);
       mywindow.document.write(content);
+      mywindow.document.getElementById('head').innerHTML = 'Kartu Peserta PPDB 2018';
       mywindow.document.getElementById('tombol_cetak').style.display = "none";
 
       mywindow.document.write('</body></html>');
@@ -946,7 +947,12 @@ export default {
                 response.data.message,
                 response.data.type,
               ).then((result) => {
-                window.location.reload()
+                if(response.data.type == 'error'){
+                  return false;
+                }else{
+                  window.location.reload()
+                }
+
               });
             }
 
