@@ -4,6 +4,7 @@ namespace Bantenprov\PendaftaranWizard\Http\Controllers;
 /* Require */
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /* Models */
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
@@ -159,7 +160,7 @@ class PendafataranExecuteController extends Controller
             return response()->json($orangTua);
         }else{
             /* pendaftaran */
-            $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+            // $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
 
             /* siswa */
             $this->siswa->nomor_un            = $this->nomor_un;
@@ -186,7 +187,7 @@ class PendafataranExecuteController extends Controller
                 $this->siswa->prodi_sekolah_id     = $request->prodi_sekolah_id;
             }
             $this->siswa->kegiatan_id         = $request->kegiatan_id;
-            $this->siswa->save();
+            // $this->siswa->save();
 
             /* orang tua */
             $this->orangTua->user_id         = $this->current_user_id;
@@ -199,7 +200,7 @@ class PendafataranExecuteController extends Controller
             $this->orangTua->pendidikan_ibu  = $request->pendidikan_ibu;
             $this->orangTua->kerja_ibu       = $request->kerja_ibu;
             $this->orangTua->alamat_ortu     = $request->alamat_ortu;
-            $this->orangTua->save();
+            // $this->orangTua->save();
 
             /* akademik */
             $data_akademik = $this->data_akademik->where('nomor_un', $this->nomor_un)->first();
@@ -209,7 +210,7 @@ class PendafataranExecuteController extends Controller
             $this->akademik->matematika       = $data_akademik->matematika;
             $this->akademik->ipa              = $data_akademik->ipa;
             $this->akademik->user_id          = $this->current_user_id;
-            $this->akademik->save();
+            // $this->akademik->save();
 
             $nilai = $this->nilai->updateOrCreate(
                 [
@@ -229,16 +230,32 @@ class PendafataranExecuteController extends Controller
                         'matematika' => $data_akademik->matematika,
                         'ipa' => $data_akademik->ipa,
                     )),
+                    'kegiatan_id' => $request->input('kegiatan_id'),
                     'total'     => null,
                     'user_id'   => $this->current_user_id,
                 ]
             );
-            $nilai->save();
+            // $nilai->save();
+
+            DB::beginTransaction();
+            if ($this->akademik->save() && $nilai->save() && $this->orangTua->save() && $this->siswa->save())
+            {
+                DB::commit();
+
+                $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+
+                $error      = false;
+                // $message    = 'Success';
+            } else {
+                DB::rollBack();
+                $error      = true;
+                // $message    = 'Failed';
+            }
 
         }
 
         $response['status']     = true;
-        $response['error']      = false;
+        $response['error']      = $error;
         $response['type']       = "success";
         $response['title']      = "Pendaftaran Berhasil";
         $response['message']    = "Nomor UN : {$this->nomor_un} berhasil di daftarkan";
