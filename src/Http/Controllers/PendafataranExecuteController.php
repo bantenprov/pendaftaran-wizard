@@ -115,9 +115,9 @@ class PendafataranExecuteController extends Controller
         $siswa_store['agama']               = $request->agama;
         $siswa_store['nisn']                = $request->nisn;
         $siswa_store['sekolah_id']          = $request->sekolah_id;
-        $siswa_store['prodi_sekolah_id']    = $request->prodi_sekolah_id;
+
         $siswa_store['tahun_lulus']         = $request->tahun_lulus;
-        $siswa_store['kegiatan_id']         = $request->kegiatan_id;
+        $siswa_store['kegiatan_id']         = $request->input('kegiatan_id');
 
         /* store orang tua */
         $orangTua_store['user_id']          = $this->current_user_id;
@@ -134,7 +134,7 @@ class PendafataranExecuteController extends Controller
 
         $pendaftaran    = $this->storePendaftaran($pendaftaran_store);
         $siswa          = $this->storeSiswa($siswa_store, $request->input('kegiatan_id'));
-        $orangTua       = $this->storeOrangTua($orangTua_store);
+        $orangTua       =$this->storeOrangTua($orangTua_store);
 
 
         if($pendaftaran['error']){
@@ -166,6 +166,12 @@ class PendafataranExecuteController extends Controller
             $this->siswa->prodi_sekolah_id    = $request->prodi_sekolah_id;
             $this->siswa->tahun_lulus         = $request->tahun_lulus;
             $this->siswa->user_id             = $this->current_user_id;
+            if($request->input('kegiatan_id') == 12 || $request->input('kegiatan_id') == 11){
+                $this->siswa->prodi_sekolah_id      = '101';
+            }else{
+                $$this->siswa->prodi_sekolah_id     = $request->prodi_sekolah_id;
+            }
+            $this->siswa->kegiatan_id         = $request->kegiatan_id;
             $this->siswa->save();
 
             /* orang tua */
