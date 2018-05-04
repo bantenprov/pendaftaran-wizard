@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 /* Models */
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Akademik;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Nilai;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\OrangTua;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Sekolah;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\ProdiSekolah;
@@ -17,6 +19,7 @@ use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Village;
 use App\User;
+use App\DataAkademik;
 
 /* Workflow Trait */
 use Bantenprov\VueWorkflow\Http\Traits\WorkflowTrait;
@@ -46,6 +49,9 @@ class PendafataranExecuteController extends Controller
     protected $city;
     protected $district;
     protected $village;
+    protected $data_akademik;
+    protected $nilai;
+    protected $akademik;
 
     protected $tgl_pendaftaran;
     protected $current_user_id;
@@ -65,7 +71,7 @@ class PendafataranExecuteController extends Controller
      * @param District $district
      * @param Village $village
      */
-    public function __construct(User $user, Sekolah $sekolah, ProdiSekolah $prodiSekolah, Kegiatan $kegiatan, Siswa $siswa, OrangTua $orangTua, Pendaftaran $pendaftaran, Province $province, City $city, District $district, Village $village)
+    public function __construct(User $user, Sekolah $sekolah, ProdiSekolah $prodiSekolah, Kegiatan $kegiatan, Siswa $siswa, OrangTua $orangTua, Pendaftaran $pendaftaran, Province $province, City $city, District $district, Village $village, DataAkademik $data_akademik, Nilai $nilai, Akademik $akademik)
     {
         $this->user             = $user;
         $this->sekolah          = $sekolah;
@@ -78,6 +84,9 @@ class PendafataranExecuteController extends Controller
         $this->city             = $city;
         $this->district         = $district;
         $this->village          = $village;
+        $this->data_akademik    = $data_akademik;
+        $this->nilai            = $nilai;
+        $this->akademik         = $akademik;
 
         $this->current_user_id  = Auth::User()->id;
         $this->nomor_un         = Auth::User()->name;
@@ -115,6 +124,11 @@ class PendafataranExecuteController extends Controller
         $siswa_store['agama']               = $request->agama;
         $siswa_store['nisn']                = $request->nisn;
         $siswa_store['sekolah_id']          = $request->sekolah_id;
+        if($request->input('kegiatan_id') == 12 || $request->input('kegiatan_id') == 11){
+            $siswa_store['prodi_sekolah_id']      = '101';
+        }else{
+            $siswa_store['prodi_sekolah_id']      = $request->prodi_sekolah_id;
+        }
 
         $siswa_store['tahun_lulus']         = $request->tahun_lulus;
         $siswa_store['kegiatan_id']         = $request->input('kegiatan_id');
@@ -169,7 +183,7 @@ class PendafataranExecuteController extends Controller
             if($request->input('kegiatan_id') == 12 || $request->input('kegiatan_id') == 11){
                 $this->siswa->prodi_sekolah_id      = '101';
             }else{
-                $$this->siswa->prodi_sekolah_id     = $request->prodi_sekolah_id;
+                $this->siswa->prodi_sekolah_id     = $request->prodi_sekolah_id;
             }
             $this->siswa->kegiatan_id         = $request->kegiatan_id;
             $this->siswa->save();
@@ -186,6 +200,41 @@ class PendafataranExecuteController extends Controller
             $this->orangTua->kerja_ibu       = $request->kerja_ibu;
             $this->orangTua->alamat_ortu     = $request->alamat_ortu;
             $this->orangTua->save();
+
+            /* akademik */
+            $data_akademik = $this->data_akademik->where('nomor_un', $this->nomor_un)->first();
+            $this->akademik->nomor_un         = $this->nomor_un;
+            $this->akademik->bahasa_indonesia = $data_akademik->bahasa_indonesia;
+            $this->akademik->bahasa_inggris   = $data_akademik->bahasa_inggris;
+            $this->akademik->matematika       = $data_akademik->matematika;
+            $this->akademik->ipa              = $data_akademik->ipa;
+            $this->akademik->user_id          = $this->current_user_id;
+            $this->akademik->save();
+
+            $nilai = $this->nilai->updateOrCreate(
+                [
+                    'nomor_un'  => $this->nomor_un,
+                ],
+                [
+                    'nomor_un'  => $this->akademik->nomor_un,
+                    'bobot'     => $this->akademik->calcNilaiBobot(array(
+                        'bahasa_indonesia' => $data_akademik->bahasa_indonesia,
+                        'bahasa_inggris' => $data_akademik->bahasa_inggris,
+                        'matematika' => $data_akademik->matematika,
+                        'ipa' => $data_akademik->ipa,
+                    )),
+                    'akademik'  => $this->akademik->calcNilaiAkademik(array(
+                        'bahasa_indonesia' => $data_akademik->bahasa_indonesia,
+                        'bahasa_inggris' => $data_akademik->bahasa_inggris,
+                        'matematika' => $data_akademik->matematika,
+                        'ipa' => $data_akademik->ipa,
+                    )),
+                    'total'     => null,
+                    'user_id'   => $this->current_user_id,
+                ]
+            );
+            $nilai->save();
+
         }
 
         $response['status']     = true;
