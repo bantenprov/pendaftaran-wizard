@@ -473,6 +473,24 @@
             </button>
           </div>
             <div class="card-body">
+              <div class="container mb-5">
+                <div class="row">
+                  <div class="mx-auto">
+                    <qrcode v-if="terdaftar == true"
+                      :value="qrcode.val"
+                      :options="{
+                        background: qrcode.bgColor,
+                        foreground: qrcode.fgColor,
+                        size: qrcode.size,
+                        level: 'H'
+                      }"
+                      tag="img"
+                      class="d-block"
+                    ></qrcode>
+                  </div>
+                </div>
+              </div>
+
               <dl class="row">
                 <dt class="col-4">Nomor Peserta PPDB</dt>
                 <dd class="col-8">{{ model.nomor_un }}</dd>
@@ -506,19 +524,7 @@
 
                 <dt class="col-4">Status</dt>
                 <dd class="col-8">{{status_now}}</dd>
-              </dl>
-
-              <qrcode v-if="terdaftar == true"
-                :value="qrcode.val"
-                :options="{
-                  background: qrcode.bgColor,
-                  foreground: qrcode.fgColor,
-                  size: qrcode.size,
-                  level: 'H'
-                }"
-                tag="img"
-                class="d-block"
-              ></qrcode>
+              </dl>              
 
             </div><!-- /.card-body -->
         </div><!-- /.card -->
@@ -566,9 +572,9 @@ export default {
           this.terdaftar = true;
 
           /* kegiatan */
-          this.model.kegiatan     = response.data.data_terdaftar.pendaftaran.kegiatan;
-          this.model.kegiatan.id  = response.data.data_terdaftar.pendaftaran.kegiatan.id;
-          this.model.tanggal_pendaftaran = response.data.data_terdaftar.pendaftaran.tanggal_pendaftaran;
+          this.model.kegiatan               = response.data.data_terdaftar.pendaftaran.kegiatan;
+          this.model.kegiatan.id            = response.data.data_terdaftar.pendaftaran.kegiatan.id;
+          this.model.tanggal_pendaftaran    = response.data.data_terdaftar.pendaftaran.tanggal_pendaftaran;
 
           /* siswa */
           this.model.nomor_un               = response.data.user.name;
@@ -947,12 +953,7 @@ export default {
                 response.data.message,
                 response.data.type,
               ).then((result) => {
-                if(response.data.type == 'error'){
-                  return false;
-                }else{
-                  window.location.reload()
-                }
-
+                window.location.reload()
               });
             }
 
