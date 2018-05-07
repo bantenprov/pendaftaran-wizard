@@ -199,10 +199,10 @@ class PendaftaranController extends Controller
 
         $history_first = $this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->first();
 
-        $history = $history_first->where('content_id', $history_first->content_id)->orderBy('id', 'desc')->first();
-
+        $history = $this->history->where('content_id', $history_first->content_id)->orderBy('id', 'desc')->first();
 
         $status_now = '';
+
         if($this->state->find($history->to_state)->label == "Propose"){
             $status_now = "Terdaftar";
         }else{
@@ -243,16 +243,11 @@ class PendaftaranController extends Controller
 
         $response['nilai_un']   = $this->data_akademik->where('nomor_un',$nomor_un)->first();
 
-        $history_first = $this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->first();
-
-        $history = $history_first->where('content_id', $history_first->content_id)->orderBy('id', 'desc')->first();
-
+        $history = $this->history->where('user_id', $siswa->user_id)->orderBy('id', 'desc')->first();
 
         $status_now = '';
         if($this->state->find($history->to_state)->label == "Propose"){
             $status_now = "Terdaftar";
-        }else{
-            $status_now = $this->state->find($history->to_state)->label;
         }
 
         $response['status_now'] = $status_now;
