@@ -524,7 +524,19 @@
 
                 <dt class="col-4">Status</dt>
                 <dd class="col-8">{{status_now}}</dd>
-              </dl>              
+              </dl>
+
+              <!-- <qrcode v-if="terdaftar == true"
+                :value="qrcode.val"
+                :options="{
+                  background: qrcode.bgColor,
+                  foreground: qrcode.fgColor,
+                  size: qrcode.size,
+                  level: 'H'
+                }"
+                tag="img"
+                class="d-block"
+              ></qrcode> -->
 
             </div><!-- /.card-body -->
         </div><!-- /.card -->
@@ -629,7 +641,7 @@ export default {
 
     })
     .catch(function(response) {
-      alert('Break');
+      alert('Break1');
     });
 
         axios.get('api/siswa/create')
@@ -953,7 +965,7 @@ export default {
                 response.data.message,
                 response.data.type,
               ).then((result) => {
-                window.location.reload()
+                //window.location.reload()
               });
             }
 
@@ -979,11 +991,21 @@ export default {
       if(this.model.kegiatan.id == 11 || this.model.kegiatan.id == 12){
         this.disable_prodi_sekolah = true;
         this.required_prodi_sekolah = false;
-        for (var i = 0; i < this.sekolah.length; i++) {
-            if (this.sekolah[i].label.includes("SMA") && this.sekolah[i].city_id.includes(this.model.no_kk.slice(0,4))) {
-                this.sekolah_filter.push(this.sekolah[i]);
-            }
+
+        if(this.model.no_kk.slice(0,2) == 36){
+          for (var i = 0; i < this.sekolah.length; i++) {
+              if (this.sekolah[i].label.includes("SMA") && this.sekolah[i].city_id.includes(this.model.no_kk.slice(0,4))) {
+                  this.sekolah_filter.push(this.sekolah[i]);
+              }
+          }
+        }else{
+          for (var i = 0; i < this.sekolah.length; i++) {
+              if (this.sekolah[i].label.includes("SMA")) {
+                  this.sekolah_filter.push(this.sekolah[i]);
+              }
+          }
         }
+
       }else if(this.model.kegiatan.id == 21 || this.model.kegiatan.id == 22){
         this.disable_prodi_sekolah = false;
         this.required_prodi_sekolah = true;
@@ -1068,5 +1090,3 @@ export default {
   }
 }
 </script>
-
-
