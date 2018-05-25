@@ -9,6 +9,8 @@ use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Pendaftaran
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Kegiatan;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\OrangTua;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Prestasi;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterPrestasi;
 use Bantenprov\VueWorkflow\Models\History;
 use Bantenprov\VueWorkflow\Models\State;
 use App\DataAkademik;
@@ -42,10 +44,10 @@ class PendaftaranController extends Controller
     protected $orang_tua;
     protected $user;
     protected $data_akademik;
-    protected $history;
-    protected $state;
+    protected $prestasi;
+    protected $master_prestasi;
 
-    public function __construct(Pendaftaran $pendaftaran, Kegiatan $kegiatan, User $user, Siswa $siswa, OrangTua $orang_tua, DataAkademik $data_akademik, History $history, State $state)
+    public function __construct(Pendaftaran $pendaftaran, Kegiatan $kegiatan, User $user, Siswa $siswa, OrangTua $orang_tua, DataAkademik $data_akademik, History $history, State $state, Prestasi $prestasi, MasterPrestasi $master_prestasi)
     {
         $this->pendaftaran      = $pendaftaran;
         $this->kegiatanModel    = $kegiatan;
@@ -55,6 +57,8 @@ class PendaftaranController extends Controller
         $this->data_akademik    = $data_akademik;
         $this->history          = $history;
         $this->state            = $state;
+        $this->prestasi         = $prestasi;
+        $this->master_prestasi  = $master_prestasi;
     }
     /**
      * Display a listing of the resource.
@@ -109,24 +113,53 @@ class PendaftaranController extends Controller
         }
         array_set($current_user, 'label', $current_user->name);
 
-        if($this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->count() > 0){
-            $history_first = $this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->first();
-
-            $history = $this->history->where('content_id', $history_first->content_id)->orderBy('id', 'desc')->first();
-
-
-            if($check_daftar > 0 && $this->state->find($history->to_state)->name != "reject"){
-                $response['data_terdaftar']    = $this->getDataTerdaftar();
-            }
+        if($check_daftar > 0 ){
+            $prestasi_data = $this->prestasi->where('nomor_un', $current_user->name)->first();
+            $response['data_terdaftar']    = $this->getDataTerdaftar();
+            $response['data_terdaftar']    = $this->getDataTerdaftar();
+            $response['prestasi']          = $this->getMasterPrestasi($prestasi_data->master_prestasi_id);
+            $response['nama_lomba']        = $prestasi_data->nama_lomba;
         }
 
 
-
-        $response['terdaftar']      = ($check_daftar > 0 && $this->state->find($history->to_state)->name != "reject") ? true : false;
+        $response['terdaftar']      = ($check_daftar > 0) ? true : false;
         $response['current_user']   = $current_user;
         $response['kegiatan']       = $kegiatan;
         $response['status']         = true;
         return response()->json($response);
+    }
+
+    public function getMasterPrestasi($id)
+    {
+        $response = [];
+        $master_prestasi = $this->master_prestasi->find($id);
+
+
+
+            if($master_prestasi->juara == 1){
+                $juara = "Juara 1";
+            }elseif($master_prestasi->juara == 2){
+                $juara = "Juara 2";
+            }elseif($master_prestasi->juara == 3){
+                $juara = "Juara 3";
+            }else{
+                $juara = "Juara Harapan 1";
+            }
+            if($master_prestasi->tingkat == 1){
+                $tingkat = "Tingkat Internasional";
+            }elseif($master_prestasi->tingkat == 2){
+                $tingkat = "Tingkat Nasional";
+            }elseif($master_prestasi->tingkat == 3){
+                $tingkat = "Tingkat Provinsi";
+            }else{
+                $tingkat = "Tingkat Kabupaten/Kota";
+            }
+            array_set($master_prestasi, 'label', "( ".$juara." ".$tingkat." ) - ".$master_prestasi->jenis_prestasi->nama);
+
+
+
+        $response['master_prestasi'] = $master_prestasi;
+        return $response;
     }
     /**
      * Display the specified resource.
@@ -150,6 +183,11 @@ class PendaftaranController extends Controller
                 $response['message'] = 'Failed, User already exists';
             } else {
 
+                /* $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
+                $pendaftaran->user_id = $current_user_id;
+                $pendaftaran->tanggal_pendaftaran = $tgl_pendaftaran;
+                $pendaftaran->save(); */
+
                 $pendaftaran_save['kegiatan_id'] = $request->input('kegiatan_id');
                 $pendaftaran_save['user_id'] = $current_user_id;
                 $pendaftaran_save['tanggal_pendaftaran'] = $tgl_pendaftaran;
@@ -159,6 +197,10 @@ class PendaftaranController extends Controller
                 $response['message'] = 'success';
             }
         } else {
+            /* $pendaftaran->kegiatan_id = $request->input('kegiatan_id');
+            $pendaftaran->user_id = $current_user_id;
+            $pendaftaran->tanggal_pendaftaran = $tgl_pendaftaran;
+            $pendaftaran->save(); */
 
             $pendaftaran_save['kegiatan_id'] = $request->input('kegiatan_id');
             $pendaftaran_save['user_id'] = $current_user_id;
@@ -174,6 +216,7 @@ class PendaftaranController extends Controller
 
     public function getDataTerdaftar(){
         $pendaftaran = $this->pendaftaran;
+        // $siswa       = $this->siswa;
         $orang_tua   = $this->orang_tua;
 
         $response['pendaftaran']    = $this->pendaftaran->where('user_id', \Auth::user()->id)->with('kegiatan')->first();
@@ -198,34 +241,33 @@ class PendaftaranController extends Controller
         $response['nilai_un']   = $this->data_akademik->where('nomor_un',\Auth::user()->name)->first();
 
         $history_first = $this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->first();
+
         $history = $this->history->where('content_id', $history_first->content_id)->orderBy('id', 'desc')->first();
+
         $status_now = '';
+
         if($this->state->find($history->to_state)->label == "Propose"){
             $status_now = "Terdaftar";
         }else{
             $status_now = $this->state->find($history->to_state)->label;
         }
+
         $response['status_now'] = $status_now;
-        return $response;
 
 
         return $response;
+
+        // $response['siswa']    = $this->siswa->where('user_id', \Auth::user()->id)->first();
     }
 
     public function checkPeserta($nomor_un){
         $pendaftaran = $this->pendaftaran;
+        // $siswa       = $this->siswa;
         $orang_tua   = $this->orang_tua;
 
+        // $response['pendaftaran']    = $this->pendaftaran->where('user_id', \Auth::user()->id)->with('kegiatan')->first();
+
         $siswa = $this->siswa->with(['province', 'city', 'district', 'village', 'sekolah', 'prodi_sekolah', 'user'])->where('nomor_un',  $nomor_un)->first();
-
-        if(is_null($siswa)){
-            $response['siswa']      = [];
-            $response['orang_tua']  = [];
-            $response['nilai_un']   = [];
-            $response['status_now'] = 'Data tidak akurat, perbaharui data pendaftaran.';
-
-            return $response;
-        }
 
         if (isset($siswa->prodi_sekolah->program_keahlian)) {
             $siswa->prodi_sekolah->program_keahlian;
@@ -244,19 +286,19 @@ class PendaftaranController extends Controller
 
         $response['nilai_un']   = $this->data_akademik->where('nomor_un',$nomor_un)->first();
 
-        $history_first = $this->history->where('user_id', \Auth::user()->id)->orderBy('id', 'desc')->first();
-        $history = $this->history->where('content_id', $history_first->content_id)->orderBy('id', 'desc')->first();
+        $history = $this->history->where('user_id', $siswa->user_id)->orderBy('id', 'desc')->first();
+
         $status_now = '';
         if($this->state->find($history->to_state)->label == "Propose"){
             $status_now = "Terdaftar";
-        }else{
-            $status_now = $this->state->find($history->to_state)->label;
         }
+
         $response['status_now'] = $status_now;
-        return $response;
 
 
         return $response;
+
+        // $response['siswa']    = $this->siswa->where('user_id', \Auth::user()->id)->first();
     }
 
     /**
