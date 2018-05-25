@@ -229,13 +229,13 @@ class SekolahController extends Controller
     public function edit($id)
     {
         $sekolah = $this->sekolah->with(['jenis_sekolah', 'province', 'city', 'district', 'village', 'master_zona', 'user'])->findOrFail($id);
-        
+
         $response['sekolah']['province'] = array_add($sekolah->province, 'label', $sekolah->province->name);
         $response['sekolah']['city'] = array_add($sekolah->city, 'label', $sekolah->city->name);
         $response['sekolah']['district'] = array_add($sekolah->district, 'label', $sekolah->district->name);
         $response['sekolah']['village'] = array_add($sekolah->village, 'label', $sekolah->village->name);
         $response['sekolah']['jenis_sekolah'] = array_add($sekolah->jenis_sekolah, 'label', $sekolah->jenis_sekolah->jenis_sekolah);
-        
+
         $response['sekolah']    = $sekolah;
         $response['error']      = false;
         $response['message']    = 'Success';

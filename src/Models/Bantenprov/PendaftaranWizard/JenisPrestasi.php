@@ -2,26 +2,19 @@
 namespace Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-class ProgramKeahlian extends Model
+class JenisPrestasi extends Model
 {
     use SoftDeletes;
     public $timestamps = true;
-    protected $table = 'program_keahlians';
+    protected $table = 'jenis_prestasis';
     protected $dates = [
         'deleted_at'
     ];
     protected $fillable = [
-        'label',
-        'keterangan',
         'user_id',
+        'nama'
     ];
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [];
-        public function user()
+    public function user()
     {
         return $this->belongsTo('App\User','user_id');
     }
