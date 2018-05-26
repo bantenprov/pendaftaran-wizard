@@ -17,6 +17,8 @@ use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Kegiatan;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Pendaftaran;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Prestasi;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterPrestasi;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterSktm;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Sktm;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
@@ -57,6 +59,8 @@ class PendafataranExecuteController extends Controller
     protected $akademik;
     protected $master_prestasi;
     protected $prestasi;
+    protected $master_sktm;
+    protected $sktm;
 
     protected $tgl_pendaftaran;
     protected $current_user_id;
@@ -76,7 +80,7 @@ class PendafataranExecuteController extends Controller
      * @param District $district
      * @param Village $village
      */
-    public function __construct(User $user, Sekolah $sekolah, ProdiSekolah $prodiSekolah, Kegiatan $kegiatan, Siswa $siswa, OrangTua $orangTua, Pendaftaran $pendaftaran, Province $province, City $city, District $district, Village $village, DataAkademik $data_akademik, Nilai $nilai, Akademik $akademik, MasterPrestasi $master_prestasi, Prestasi $prestasi)
+    public function __construct(User $user, Sekolah $sekolah, ProdiSekolah $prodiSekolah, Kegiatan $kegiatan, Siswa $siswa, OrangTua $orangTua, Pendaftaran $pendaftaran, Province $province, City $city, District $district, Village $village, DataAkademik $data_akademik, Nilai $nilai, Akademik $akademik, MasterPrestasi $master_prestasi, Prestasi $prestasi, MasterSktm $master_sktm, Sktm $sktm)
     {
         $this->user             = $user;
         $this->sekolah          = $sekolah;
@@ -94,6 +98,8 @@ class PendafataranExecuteController extends Controller
         $this->akademik         = $akademik;
         $this->master_prestasi  = $master_prestasi;
         $this->prestasi         = $prestasi;
+        $this->master_sktm      = $master_sktm;
+        $this->sktm             = $sktm;
 
         $this->current_user_id  = Auth::User()->id;
         $this->nomor_un         = Auth::User()->name;
@@ -157,7 +163,6 @@ class PendafataranExecuteController extends Controller
         $prestasi_store['nomor_un']             = $this->nomor_un;
         $prestasi_store['master_prestasi_id']   = $request->master_prestasi_id;
         $prestasi_store['nama_lomba']           = $request->nama_lomba;
-
 
 
 
@@ -242,6 +247,18 @@ class PendafataranExecuteController extends Controller
                 $this->prestasi->user_id              = $this->current_user_id;
             }
 
+            /* sktm */
+            if($request->master_sktm_id != "" && $request->no_sktm != ""){
+                $sktm_master_sktm_id          = $request->master_sktm_id;
+                $master_sktm                  = $this->master_sktm->findOrFail($sktm_master_sktm_id);
+                $this->sktm->nomor_un         = $this->nomor_un;
+                $this->sktm->master_sktm_id   = $sktm_master_sktm_id;
+                $this->sktm->no_sktm          = $request->input('no_sktm');
+                $this->sktm->nilai            = $master_sktm->nilai;
+                $this->sktm->user_id          = $this->current_user_id;
+            }
+
+
 
             $nilai1 = $this->nilai->updateOrCreate(
                 [
@@ -279,6 +296,18 @@ class PendafataranExecuteController extends Controller
                 );
             }
 
+            if($request->master_sktm_id != "" && $request->no_sktm != ""){
+                $nilai3 = $this->nilai->updateOrCreate(
+                    [
+                        'nomor_un'  => $this->sktm->nomor_un,
+                    ],
+                    [
+                        'sktm'          => $this->sktm->nilai,
+                        'user_id'       => $this->current_user_id,
+                    ]
+                );
+            }
+
             DB::beginTransaction();
             if($request->input('kegiatan_id') ==  11 || $request->input('kegiatan_id') == 21){
                 if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save())
@@ -294,8 +323,22 @@ class PendafataranExecuteController extends Controller
                     $error      = true;
                     // $message    = 'Failed';
                 }
+            }elseif($request->master_sktm_id != "" && $request->no_sktm != ""){
+                if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save() && $this->sktm->save() && $nilai3->save())
+                {
+                    DB::commit();
+
+                    $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+
+                    $error      = false;
+                    // $message    = 'Success';
+                } else {
+                    DB::rollBack();
+                    $error      = true;
+                    // $message    = 'Failed';
+                }
             }else{
-                if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save())
+                if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save() && $nilai3->save() && $this->sktm->save())
                 {
                     DB::commit();
 
@@ -516,6 +559,27 @@ class PendafataranExecuteController extends Controller
         }
         $response['status'] = true;
         return $response;
+    }
+
+    public function storeSktm($request = array())
+    {
+        $sktm = $this->sktm;
+        $validator = Validator::make($request, [
+            'nomor_un'          => "required|unique:{$this->sktm->getTable()},nomor_un,NULL,id,deleted_at,NULL",
+            'master_sktm_id'    => "required|exists:{$this->master_sktm->getTable()},id",
+            'no_sktm'           => 'required|max:255',
+        ]);
+        if ($validator->fails()) {
+            $response['error']      = true;
+            $response['type']       = "error";
+            $response['title']      = "Pendaftaran Gagal";
+            $response['message']    = $validator->errors()->first();
+        } else {
+            $response['error']      = false;
+        }
+
+        $response['status']     = true;
+        return response()->json($response);
     }
 
 }
