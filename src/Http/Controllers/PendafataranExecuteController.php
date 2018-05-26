@@ -19,6 +19,7 @@ use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Prestasi;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterPrestasi;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterSktm;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Sktm;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Zona;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
@@ -61,6 +62,7 @@ class PendafataranExecuteController extends Controller
     protected $prestasi;
     protected $master_sktm;
     protected $sktm;
+    protected $zona;
 
     protected $tgl_pendaftaran;
     protected $current_user_id;
@@ -80,7 +82,7 @@ class PendafataranExecuteController extends Controller
      * @param District $district
      * @param Village $village
      */
-    public function __construct(User $user, Sekolah $sekolah, ProdiSekolah $prodiSekolah, Kegiatan $kegiatan, Siswa $siswa, OrangTua $orangTua, Pendaftaran $pendaftaran, Province $province, City $city, District $district, Village $village, DataAkademik $data_akademik, Nilai $nilai, Akademik $akademik, MasterPrestasi $master_prestasi, Prestasi $prestasi, MasterSktm $master_sktm, Sktm $sktm)
+    public function __construct(User $user, Sekolah $sekolah, ProdiSekolah $prodiSekolah, Kegiatan $kegiatan, Siswa $siswa, OrangTua $orangTua, Pendaftaran $pendaftaran, Province $province, City $city, District $district, Village $village, DataAkademik $data_akademik, Nilai $nilai, Akademik $akademik, MasterPrestasi $master_prestasi, Prestasi $prestasi, MasterSktm $master_sktm, Sktm $sktm, Zona $zona)
     {
         $this->user             = $user;
         $this->sekolah          = $sekolah;
@@ -100,6 +102,7 @@ class PendafataranExecuteController extends Controller
         $this->prestasi         = $prestasi;
         $this->master_sktm      = $master_sktm;
         $this->sktm             = $sktm;
+        $this->zona             = $zona;
 
         $this->current_user_id  = Auth::User()->id;
         $this->nomor_un         = Auth::User()->name;
@@ -260,6 +263,22 @@ class PendafataranExecuteController extends Controller
                 $this->sktm->user_id          = $this->current_user_id;
             }
 
+            /* zona */
+            // $siswa          = $this->siswa->where('nomor_un', $this->nomor_un)->with(['sekolah'])->first();
+            $sekolah_id     = $this->sekolah->find($request->sekolah_id);
+            $zona_siswa     = substr($request->village_id, 0, 6);
+            $zona_sekolah   = substr($sekolah_id->village_id, 0, 6);
+            $lokasi_siswa   = $request->village_id;
+            $lokasi_sekolah = $sekolah_id->village_id;
+            $this->zona->nomor_un         = $this->nomor_un;
+            $this->zona->sekolah_id       = $request->sekolah_id;
+            $this->zona->zona_siswa       = $zona_siswa;
+            $this->zona->zona_sekolah     = $zona_sekolah;
+            $this->zona->lokasi_siswa     = $lokasi_siswa;
+            $this->zona->lokasi_sekolah   = $lokasi_sekolah;
+            $this->zona->nilai            = $this->zona->nilai($lokasi_siswa, $lokasi_sekolah);
+            $this->zona->user_id          = $this->current_user_id;
+
 
 
             $nilai1 = $this->nilai->updateOrCreate(
@@ -310,10 +329,21 @@ class PendafataranExecuteController extends Controller
                 );
             }
 
+            $nilai4 = $this->nilai->updateOrCreate(
+                [
+                    'nomor_un'  => $zona->nomor_un,
+                ],
+                [
+                    'nomor_un'      => $this->nomor_un,
+                    'zona'          => $this->zona->nilai,
+                    'user_id'       => $this->current_user_id,
+                ]
+            );
+
             DB::beginTransaction();
             if($request->input('kegiatan_id') ==  11 || $request->input('kegiatan_id') == 21){
                 if($request->master_sktm_id != "" && $request->no_sktm != ""){
-                    if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save() && $this->sktm->save() && $nilai3->save())
+                    if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save() && $this->sktm->save() && $nilai3->save() && $this->zona->save() && $nilai4->save())
                     {
                         DB::commit();
 
@@ -327,7 +357,7 @@ class PendafataranExecuteController extends Controller
                         // $message    = 'Failed';
                     }
                 }else{
-                    if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save())
+                    if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save() && $this->zona->save() && $nilai4->save())
                     {
                         DB::commit();
 
@@ -344,7 +374,7 @@ class PendafataranExecuteController extends Controller
 
             }else{
                 if($request->master_sktm_id != "" && $request->no_sktm != ""){
-                    if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save() && $nilai3->save() && $this->sktm->save())
+                    if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save() && $nilai3->save() && $this->sktm->save() && $this->zona->save() && $nilai4->save())
                     {
                         DB::commit();
 
@@ -358,7 +388,7 @@ class PendafataranExecuteController extends Controller
                         // $message    = 'Failed';
                     }
                 }else{
-                    if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save())
+                    if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save() && $this->zona->save() && $nilai4->save())
                     {
                         DB::commit();
 
