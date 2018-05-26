@@ -310,47 +310,67 @@ class PendafataranExecuteController extends Controller
 
             DB::beginTransaction();
             if($request->input('kegiatan_id') ==  11 || $request->input('kegiatan_id') == 21){
-                if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save())
-                {
-                    DB::commit();
+                if($request->master_sktm_id != "" && $request->no_sktm != ""){
+                    if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save() && $this->sktm->save() && $nilai3->save())
+                    {
+                        DB::commit();
 
-                    $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+                        $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
 
-                    $error      = false;
-                    // $message    = 'Success';
-                } else {
-                    DB::rollBack();
-                    $error      = true;
-                    // $message    = 'Failed';
+                        $error      = false;
+                        // $message    = 'Success';
+                    } else {
+                        DB::rollBack();
+                        $error      = true;
+                        // $message    = 'Failed';
+                    }
+                }else{
+                    if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save())
+                    {
+                        DB::commit();
+
+                        $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+
+                        $error      = false;
+                        // $message    = 'Success';
+                    } else {
+                        DB::rollBack();
+                        $error      = true;
+                        // $message    = 'Failed';
+                    }
                 }
-            }elseif($request->master_sktm_id != "" && $request->no_sktm != ""){
-                if ($this->akademik->save() && $nilai1->save() && $nilai2->save() && $this->orangTua->save() && $this->siswa->save() && $this->prestasi->save() && $this->sktm->save() && $nilai3->save())
-                {
-                    DB::commit();
 
-                    $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
-
-                    $error      = false;
-                    // $message    = 'Success';
-                } else {
-                    DB::rollBack();
-                    $error      = true;
-                    // $message    = 'Failed';
-                }
             }else{
-                if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save() && $nilai3->save() && $this->sktm->save())
-                {
-                    DB::commit();
+                if($request->master_sktm_id != "" && $request->no_sktm != ""){
+                    if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save() && $nilai3->save() && $this->sktm->save())
+                    {
+                        DB::commit();
 
-                    $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+                        $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
 
-                    $error      = false;
-                    // $message    = 'Success';
-                } else {
-                    DB::rollBack();
-                    $error      = true;
-                    // $message    = 'Failed';
+                        $error      = false;
+                        // $message    = 'Success';
+                    } else {
+                        DB::rollBack();
+                        $error      = true;
+                        // $message    = 'Failed';
+                    }
+                }else{
+                    if ($this->akademik->save() && $nilai1->save() &&  $this->orangTua->save() && $this->siswa->save())
+                    {
+                        DB::commit();
+
+                        $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
+
+                        $error      = false;
+                        // $message    = 'Success';
+                    } else {
+                        DB::rollBack();
+                        $error      = true;
+                        // $message    = 'Failed';
+                    }
                 }
+
             }
 
 

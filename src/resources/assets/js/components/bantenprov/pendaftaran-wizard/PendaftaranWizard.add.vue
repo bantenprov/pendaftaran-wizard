@@ -889,7 +889,7 @@ export default {
           }
         })
         .catch(function(response) {
-          alert("Break");
+          
         });
 
     axios
