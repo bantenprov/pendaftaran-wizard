@@ -868,12 +868,23 @@ export default {
               response.data.data_terdaftar.nilai_un.ipa;
 
             /* prestasi */
-            this.model.jenis_prestasi = response.data.prestasi.master_prestasi;
-            this.model.nama_lomba = response.data.nama_lomba;
+            if (response.data.prestasi == null) {
+              this.model.jenis_prestasi = null;
+              this.model.nama_lomba = null;
+            } else {
+              this.model.jenis_prestasi =
+                response.data.prestasi.master_prestasi;
+              this.model.nama_lomba = response.data.nama_lomba;
+            }
 
             /* sktm */
-            this.model.master_sktm = response.data.sktm.sktm.master_sktm;
-            this.model.no_sktm = response.data.sktm.sktm.no_sktm;
+            if (response.data.sktm.sktm == null) {
+              this.model.master_sktm = null;
+              this.model.no_sktm = null;
+            } else {
+              this.model.master_sktm = response.data.sktm.sktm.master_sktm;
+              this.model.no_sktm = response.data.sktm.sktm.no_sktm;
+            }
 
             /* status */
             this.status_now = response.data.data_terdaftar.status_now;
@@ -882,15 +893,14 @@ export default {
               window.location.origin + "/check-peserta/" + this.model.nomor_un;
             this.display = await "display:none";
             this.display_form = await "display:block";
+            await console.log(this.display_form);
           } else {
             this.terdaftar = false;
             this.display = await "display:none";
             this.display_form = await "display:block";
           }
         })
-        .catch(function(response) {
-          
-        });
+        .catch(function(response) {});
 
     axios
       .get("api/siswa/create")

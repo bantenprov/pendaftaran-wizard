@@ -120,12 +120,20 @@ class PendaftaranController extends Controller
         array_set($current_user, 'label', $current_user->name);
 
         if($check_daftar > 0 ){
-            $prestasi_data = $this->prestasi->where('nomor_un', $current_user->name)->first();
+
             $response['data_terdaftar']    = $this->getDataTerdaftar();
             $response['data_terdaftar']    = $this->getDataTerdaftar();
-            $response['prestasi']          = $this->getMasterPrestasi($prestasi_data->master_prestasi_id);
+
+            $prestasi_data = $this->prestasi->where('nomor_un', $current_user->name);
+            if($prestasi_data->count() > 0 ){
+                $response['prestasi']          = $this->getMasterPrestasi($prestasi_data->first()->master_prestasi_id);
+                $response['nama_lomba']        = $prestasi_data->first()->nama_lomba;
+            }else{
+                $response['prestasi']          = null;
+                $response['nama_lomba']        = null;
+            }
+
             $response['sktm']              = $this->getSktm($current_user->name);
-            $response['nama_lomba']        = $prestasi_data->nama_lomba;
         }
 
 
