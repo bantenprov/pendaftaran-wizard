@@ -171,6 +171,8 @@ class PendafataranExecuteController extends Controller
         $orangTua       = $this->storeOrangTua($orangTua_store);
         if($request->input('kegiatan_id') ==  11 || $request->input('kegiatan_id') == 21){
             $prestasi       = $this->storePrestasi($prestasi_store);
+        }else{
+            $prestasi['error'] = false;
         }
 
 
@@ -182,7 +184,7 @@ class PendafataranExecuteController extends Controller
         }elseif($orangTua['error']){
             return response()->json($orangTua);
         }elseif($prestasi['error']){
-                return response()->json($prestasi);
+            return response()->json($prestasi);
         }else{
             /* pendaftaran */
             // $this->insertWithWorkflow($this->pendaftaran, $pendaftaran_store);
