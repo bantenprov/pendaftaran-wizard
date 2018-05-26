@@ -15,6 +15,7 @@ class Pendaftaran extends Model
         'sekolah_id',
         'user_id',
         'tanggal_pendaftaran',
+        'nomor_un',
     ];
     public function kegiatan()
     {
