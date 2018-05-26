@@ -11,6 +11,8 @@ use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Siswa;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\OrangTua;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Prestasi;
 use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterPrestasi;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\MasterSktm;
+use Bantenprov\PendaftaranWizard\Models\Bantenprov\PendaftaranWizard\Sktm;
 use Bantenprov\VueWorkflow\Models\History;
 use Bantenprov\VueWorkflow\Models\State;
 use App\DataAkademik;
@@ -46,8 +48,10 @@ class PendaftaranController extends Controller
     protected $data_akademik;
     protected $prestasi;
     protected $master_prestasi;
+    protected $sktm;
+    protected $master_sktm;
 
-    public function __construct(Pendaftaran $pendaftaran, Kegiatan $kegiatan, User $user, Siswa $siswa, OrangTua $orang_tua, DataAkademik $data_akademik, History $history, State $state, Prestasi $prestasi, MasterPrestasi $master_prestasi)
+    public function __construct(Pendaftaran $pendaftaran, Kegiatan $kegiatan, User $user, Siswa $siswa, OrangTua $orang_tua, DataAkademik $data_akademik, History $history, State $state, Prestasi $prestasi, MasterPrestasi $master_prestasi, MasterSktm $master_sktm, Sktm $sktm)
     {
         $this->pendaftaran      = $pendaftaran;
         $this->kegiatanModel    = $kegiatan;
@@ -59,6 +63,8 @@ class PendaftaranController extends Controller
         $this->state            = $state;
         $this->prestasi         = $prestasi;
         $this->master_prestasi  = $master_prestasi;
+        $this->sktm             = $sktm;
+        $this->master_sktm      = $master_sktm;
     }
     /**
      * Display a listing of the resource.
@@ -118,6 +124,7 @@ class PendaftaranController extends Controller
             $response['data_terdaftar']    = $this->getDataTerdaftar();
             $response['data_terdaftar']    = $this->getDataTerdaftar();
             $response['prestasi']          = $this->getMasterPrestasi($prestasi_data->master_prestasi_id);
+            $response['sktm']              = $this->getSktm($current_user->name);
             $response['nama_lomba']        = $prestasi_data->nama_lomba;
         }
 
@@ -159,6 +166,16 @@ class PendaftaranController extends Controller
 
 
         $response['master_prestasi'] = $master_prestasi;
+        return $response;
+    }
+
+    public function getSktm($id)
+    {
+        $response       = [];
+        $sktm           = $this->sktm->with(['master_sktm'])->where('nomor_un', $id)->first();
+
+
+        $response['sktm'] = $sktm;
         return $response;
     }
     /**

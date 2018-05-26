@@ -1,593 +1,1026 @@
 <template>
   <div>
 
+    <div id="bg-block" class="h-100" :style="display">
+      <div class="align-middle col-md-12 col-sm-12 h-100" id="loading">
+        <div class="progress blue align-middle mx-auto my-auto">
+          <span class="progress-left">
+            <span class="progress-bar"></span>
+          </span>
+          <span class="progress-right">
+            <span class="progress-bar"></span>
+          </span>
+          <div class="progress-value">Loading ...</div>
+        </div>
+      </div>
+    </div>
 
-    <form-wizard
-      @on-complete="onComplete"
-      shape="square"
-      color="#3498db">
+    <form-wizard @on-complete="onComplete" shape="square" color="#3498db" finish-button-text="Register" :start-index="0" :style="display_form">
 
       <div class="text-center mb-3" slot="title">
       </div>
 
-      <tab-content title="Pendaftaran"  icon="fa fa-gear" :before-change="()=>beforeTabSwitch1(1)">
+      <!-- Data Sekolah tujuan -->
+      <tab-content title="Pendaftaran" icon="fa fa-gear" :before-change="()=>beforeTabSwitch1(1)">
         <div class="card mb-3">
-          <div class="card-header"><i class="fa fa-gear" aria-hidden="true"></i> Pendaftaran</div>
+          <div class="card-header">
+            <i class="fa fa-gear" aria-hidden="true"></i> Pendaftaran</div>
           <div class="card-body">
 
-        <vue-form class="form-horizontal form-validation" :state="state_daftar">
-          <div class="form-row">
-            <div class="col-md">
-              <validate tag="div">
-                <label for="model.tanggal_pendaftaran">Tanggal Pendaftaran</label>
-                 <input disabled class="form-control" type="datetime"  v-model="model.tanggal_pendaftaran"  name="tanggal_pendaftaran" >
-              </validate>
-            </div>
+            <vue-form class="form-horizontal form-validation" :state="state_daftar">
+              <div class="form-row">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.tanggal_pendaftaran">Tanggal Pendaftaran</label>
+                    <input disabled class="form-control" type="datetime" v-model="model.tanggal_pendaftaran" name="tanggal_pendaftaran">
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="kegiatan">Kegiatan</label>
+                    <v-select @input="kegiatanChange" name="kegiatan" required v-model="model.kegiatan" :options="kegiatan" placeholder="Select Kegiatan"></v-select>
+
+                    <field-messages name="kegiatan" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Kegiatan tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <label for="user_id">Username</label>
+                  <v-select name="user_id" disabled="disabled" v-model="model.user" :options="user" class="mb-4"></v-select>
+                </div>
+              </div>
+
+            </vue-form>
+
           </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="kegiatan">Kegiatan</label>
-              <v-select name="kegiatan" required v-model="model.kegiatan" :options="kegiatan" placeholder="Select Kegiatan"></v-select>
-
-              <field-messages name="kegiatan" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Kegiatan is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-        <!-- <div class="form-row mt-4">
-
-          <div class="col-md">
-            <label for="kegiatan">Kegiatan</label>
-            <v-select name="kegiatan" required v-model="model.kegiatan" :options="kegiatan" placeholder="Select Kegiatan"></v-select>
-          </div>
-        </div> -->
-
-        <div class="form-row mt-4">
-					<div class="col-md">
-						<label for="user_id">Username</label>
-						<v-select name="user_id"  disabled="disabled"  v-model="model.user" :options="user" class="mb-4"></v-select>
-					</div>
-				</div>
-
-      </vue-form>
-
-          </div><!-- /.card-body -->
-        </div><!-- /.card -->
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
       </tab-content>
 
+      <!-- Data Siswa -->
       <tab-content title="Data Siswa" icon="fa fa-user" :before-change="()=>beforeTabSwitch2(1)">
         <div class="card mb-3">
-          <div class="card-header"><i class="fa fa-user" aria-hidden="true"></i> Data Siswa</div>
+          <div class="card-header">
+            <i class="fa fa-user" aria-hidden="true"></i> Data Siswa</div>
           <div class="card-body">
 
-        <vue-form class="form-horizontal form-validation" :state="state_siswa" >
-          <div class="form-row">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="nomor_un">Nomor UN</label>
-              <input class="form-control" v-model="model.nomor_un" required autofocus name="nomor_un" type="text" placeholder="Nomor UN">
+            <vue-form class="form-horizontal form-validation" :state="state_siswa">
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.nomor_un">Nomor UN</label>
+                    <h5> {{ model.nomor_un }} </h5>
+                  </validate>
+                </div>
+              </div>
 
-              <field-messages name="nomor_un" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Nomor UN is a required field</small>
-              </field-messages>
-            </validate>
+              <!-- <div class="form-row">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="nik">NIK</label>
+                    <input class="form-control" v-model="model.nik" required autofocus name="nik" type="text" placeholder="NIK">
+
+                    <field-messages name="nik" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Label tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div> -->
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="nama_siswa">Nama Siswa</label>
+                    <input class="form-control" v-model="model.nama_siswa" required autofocus name="nama_siswa" type="text" placeholder="Nama Siswa">
+
+                    <field-messages name="nama_siswa" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Label tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="nomor_kk">No KK</label>
+                    <input class="form-control" v-model="model.no_kk" required autofocus name="nomor_kk" type="text" placeholder="Nomor KK">
+
+                    <field-messages name="nomor_kk" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Label tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="alamat_kk">Alamat KK</label>
+                    <input class="form-control" v-model="model.alamat_kk" required autofocus name="alamat_kk" type="text" placeholder="Alamat KK">
+
+                    <field-messages name="alamat_kk" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Label tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="province_id">Provinsi</label>
+                    <v-select name="province_id" placeholder="Pilih Provinsi" required v-model="model.province" :options="province" @input="changeProvince" class="mb-4"></v-select>
+
+                    <field-messages name="province_id" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">provinsi tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="city_id">Kabupaten</label>
+                    <v-select placeholder="Pilih Kabupaten" name="city_id" v-model="model.city" :options="city" @input="changeCity" required class="mb-4"></v-select>
+
+                    <field-messages name="city_id" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Kabupaten tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="district_id">Kecamatan</label>
+                    <v-select placeholder="Pilih Kecamatan" name="district_id" v-model="model.district" :options="district" @input="changeDistrict" required class="mb-4"></v-select>
+
+                    <field-messages name="district_id" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Kota tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="village_id">Desa / Kelurahan</label>
+                    <v-select placeholder="Pilih Desa / Kelurahan" name="village_id" v-model="model.village" :options="village" class="mb-4" required></v-select>
+
+                    <field-messages name="village_id" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Desa tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="tempat_lahir">Tempat Lahir</label>
+                    <input class="form-control" v-model="model.tempat_lahir" required autofocus name="tempat_lahir" type="text" placeholder="Tempat Lahir">
+
+                    <field-messages name="tempat_lahir" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Label tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <label for="tgl_lahir">Tanggal Lahir</label>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md-4">
+                  <validate tag="div">
+                    <v-select name="tgl_lahir" placeholder="Tanggal" v-model="model.tgl_lahir" required :options="tgl_lahir" class="mb-4"></v-select>
+                    <field-messages name="tgl_lahir" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Tanggal tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+                <div class="col-md-4">
+                  <validate tag="div">
+                    <v-select name="bln_lahir" placeholder="Bulan" v-model="model.bln_lahir" :options="bln_lahir" required class="mb-4"></v-select>
+
+                    <field-messages name="bln_lahir" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Bulan tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+                <div class="col-md-4">
+                  <validate tag="div">
+                    <v-select name="thn_lahir" placeholder="Tahun" v-model="model.thn_lahir" :options="thn_lahir" required class="mb-4"></v-select>
+
+                    <field-messages name="thn_lahir" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Tahun tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="jenis_kelamin">Jenis Kelamin</label>
+                    <v-select placeholder="Jenis Kelamin" name="jenis_kelamin" v-model="model.jenis_kelamin" required :options="jenis_kelamin" class="mb-4"></v-select>
+
+                    <field-messages name="jenis_kelamin" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Jenis Kelamin tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="agama">Agama</label>
+                    <v-select placeholder="Agama" name="agama" v-model="model.agama" required :options="agama" class="mb-4"></v-select>
+
+                    <field-messages name="agama" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Agama Kelamin tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="nisn">NISN</label>
+                    <input class="form-control" v-model="model.nisn" required autofocus name="nisn" type="text" placeholder="NISN">
+
+                    <field-messages name="nisn" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Label tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.tahun_lulus">Tahun Lulus</label>
+                    <v-select name="tahun_lulus" v-model="model.tahun_lulus" :options="tahun_lulus" class="mb-4" required placeholder="Tahun Lulus"></v-select>
+                    <field-messages name="tahun_lulus" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Tahun Lulus tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="jenis_prestasi">Jenis Prestasi</label>
+                    <v-select name="jenis_prestasi" placeholder="Pilih Jenis Prestasi" :disabled="disable_jenis_prestasi" :required="required_jenis_prestasi" v-model="model.jenis_prestasi" :options="jenis_prestasi" class="mb-4"></v-select>
+
+                    <field-messages name="jenis_prestasi" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Jenis Prestasi tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.nama_lomba">Nama Lomba</label>
+                    <input class="form-control" v-model="model.nama_lomba" :disabled="disable_nama_lomba" :required="required_nama_lomba" autofocus name="nama_lomba" type="text" placeholder="Nama Lomba">
+                    <field-messages name="nama_lomba" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Nama Lomba tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="master_sktm_id">Kriteria SKTM</label>
+                    <v-select name="master_sktm_id" v-model="model.master_sktm" :options="master_sktm" placeholder="Kriteria SKTM"></v-select>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="no_sktm">No SKTM</label>
+                    <input type="text" class="form-control" name="no_sktm" v-model="model.no_sktm" placeholder="No SKTM" autofocus>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="sekolah">Sekolah Tujuan</label>
+                    <v-select name="sekolah" v-model="model.sekolah" :options="sekolah_filter" @input="changeSekolah" placeholder="Sekolah Tujuan" required></v-select>
+
+                    <field-messages name="sekolah" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Sekolah tujuan tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="prodi_sekolah">Prodi Sekolah</label>
+                    <v-select name="prodi_sekolah" :disabled="disable_prodi_sekolah" v-model="model.prodi_sekolah" :options="prodi_sekolah" placeholder="Prodi Sekolah" :required="required_prodi_sekolah"></v-select>
+
+                    <field-messages name="prodi_sekolah" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">Prodi Sekolah tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="user_id">Username</label>
+                    <v-select name="user_id" v-model="model.user" :options="user" class="mb-4"></v-select>
+
+                    <field-messages name="user_id" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-success">Looks good!</small>
+                      <small class="form-text text-danger" slot="required">User tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+            </vue-form>
+
           </div>
+          <!-- /.card-body -->
         </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="nik">NIK</label>
-              <input class="form-control" v-model="model.nik" required autofocus name="nik" type="text" placeholder="NIK">
-
-              <field-messages name="nik" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="nama_siswa">Nama Siswa</label>
-              <input class="form-control" v-model="model.nama_siswa" required autofocus name="nama_siswa" type="text" placeholder="Nama Siswa">
-
-              <field-messages name="nama_siswa" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="nomor_kk">No KK</label>
-              <input class="form-control" v-model="model.no_kk" required autofocus name="no_kk" type="text" placeholder="Nomor KK">
-
-              <field-messages name="nomor_kk" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="alamat_kk">Alamat KK</label>
-              <input class="form-control" v-model="model.alamat_kk" required autofocus name="alamat_kk" type="text" placeholder="Alamat KK">
-
-              <field-messages name="alamat_kk" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="tempat_lahir">Tempat Lahir</label>
-              <input class="form-control" v-model="model.tempat_lahir" required autofocus name="tempat_lahir" type="text" placeholder="Tempat Lahir">
-
-              <field-messages name="tempat_lahir" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="tgl_lahir">Tanggal Lahir</label>
-              <input class="form-control" v-model="model.tgl_lahir" required autofocus name="tgl_lahir" type="date" placeholder="Tanggal Lahir">
-
-              <field-messages name="tgl_lahir" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <!-- <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="jenis_kelamin">Jenis Kelamin</label>
-              <input class="form-control" v-model="model.jenis_kelamin" required autofocus name="jenis_kelamin" type="text" placeholder="Jenis Kelamin">
-
-              <field-messages name="jenis_kelamin" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div> -->
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-            <label for="jenis_kelamin">Jenis Kelamin</label>
-            <v-select v-model="model.jenis_kelamin" :options="jenis_kelamin" class="mb-4"></v-select>
-
-            <field-messages name="jenis_kelamin" show="$invalid && $submitted" class="text-danger">
-              <small class="form-text text-success">Looks good!</small>
-              <small class="form-text text-danger" slot="required">Jenis Kelamin is a required field</small>
-            </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-            <label for="jenis_kelamin">Agama</label>
-            <v-select v-model="model.agama" :options="agama" class="mb-4"></v-select>
-
-            <field-messages name="jenis_kelamin" show="$invalid && $submitted" class="text-danger">
-              <small class="form-text text-success">Looks good!</small>
-              <small class="form-text text-danger" slot="required">Agama Kelamin is a required field</small>
-            </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <!-- <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="agama">Agama</label>
-              <input class="form-control" v-model="model.agama" required autofocus name="agama" type="text" placeholder="Agama">
-
-              <field-messages name="agama" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div> -->
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="nisn">NISN</label>
-              <input class="form-control" v-model="model.nisn" required autofocus name="nisn" type="text" placeholder="NISN">
-
-              <field-messages name="nisn" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <!-- <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="tahun_lulus">Tahun Lulus</label>
-              <input class="form-control" v-model="model.tahun_lulus" required autofocus name="tahun_lulus" type="text" placeholder="Tahun Lulus">
-
-              <field-messages name="tahun_lulus" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Label is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div> -->
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-            <label for="model.tahun_lulus">Tahun Lulus</label>
-            <v-select name="tahun_lulus"   v-model="model.tahun_lulus" :options="tahun_lulus" class="mb-4" placeholder="Tahun Lulus"></v-select>
-            <field-messages name="tahun_lulus" show="$invalid && $submitted" class="text-danger">
-              <small class="form-text text-danger" slot="required">Tahun Lulus is a required field</small>
-            </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="sekolah_id">Sekolah Tujuan</label>
-              <v-select name="sekolah_id" v-model="model.sekolah" :options="sekolah" class="mb-4"></v-select>
-
-              <field-messages name="sekolah_id" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Sekolah tujuan is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="province_id">Provinsi</label>
-              <v-select name="province_id" v-model="model.province" :options="province" @input="changeProvince" class="mb-4"></v-select>
-
-              <field-messages name="province_id" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">provinsi is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="city_id">Kabupaten</label>
-              <v-select name="city_id" v-model="model.city" :options="city" @input="changeCity" class="mb-4"></v-select>
-
-              <field-messages name="city_id" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Kabupaten is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="district_id">Kota</label>
-              <v-select name="district_id" v-model="model.district" :options="district" @input="changeDistrict" class="mb-4"></v-select>
-
-                <field-messages name="district_id" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Kota is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="village_id">Desa</label>
-              <v-select name="village_id" v-model="model.village" :options="village" class="mb-4"></v-select>
-
-              <field-messages name="village_id" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">Desa is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-        <div class="form-row mt-4">
-          <div class="col-md">
-            <validate tag="div">
-              <label for="user_id">Username</label>
-              <v-select name="user_id" v-model="model.user" :options="user" class="mb-4"></v-select>
-
-              <field-messages name="user_id" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-success">Looks good!</small>
-                <small class="form-text text-danger" slot="required">User is a required field</small>
-              </field-messages>
-            </validate>
-          </div>
-        </div>
-
-
-
-
-        </vue-form>
-
-          </div><!-- /.card-body -->
-        </div><!-- /.card -->
+        <!-- /.card -->
       </tab-content>
 
-      <tab-content title="Data Orangtua" icon="fa fa-users">
+      <!-- Data Orang Tua -->
+      <tab-content title="Data Orangtua" icon="fa fa-users" :before-change="()=>beforeTabSwitch3(1)">
         <div class="card mb-3">
-          <div class="card-header"><i class="fa fa-users" aria-hidden="true"></i> Data Orangtua</div>
+          <div class="card-header">
+            <i class="fa fa-users" aria-hidden="true"></i> Data Orangtua</div>
           <div class="card-body">
 
-          <vue-form class="form-horizontal form-validation" :state="state_ortu" >
+            <vue-form class="form-horizontal form-validation" :state="state_ortu">
 
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.nomor_un">Nomor UN :</label>
-                <h5> {{ model.nomor_un }} </h5>
-              </validate>
-            </div>
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.nomor_un">Nomor UN :</label>
+                    <h5> {{ model.nomor_un }} </h5>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.no_telp">Nomor Telepon</label>
+                    <input class="form-control" v-model="model.no_telp" required autofocus name="no_telp" type="number" placeholder="Nomor Telp">
+                    <field-messages name="no_telp" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Nomor Telp tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.nama_ayah">Nama Ayah</label>
+                    <input class="form-control" v-model="model.nama_ayah" required autofocus name="nama_ayah" type="text" placeholder="Nama Ayah">
+                    <field-messages name="nama_ayah" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Nama Ayah tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.nama_ibu">Nama Ibu</label>
+                    <input class="form-control" v-model="model.nama_ibu" required autofocus name="nama_ibu" type="text" placeholder="Nama Ibu">
+                    <field-messages name="nama_ibu" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Nama Ibu tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.pendidikan_ayah">Pendidikan Ayah</label>
+                    <input class="form-control" v-model="model.pendidikan_ayah" required autofocus name="pendidikan_ayah" type="text" placeholder="Pendidikan Ayah">
+                    <field-messages name="pendidikan_ayah" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Pendidikan Ayah tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.kerja_ayah">Pekerjaan Ayah</label>
+                    <input class="form-control" v-model="model.kerja_ayah" required autofocus name="kerja_ayah" type="text" placeholder="Pekerjaan Ayah">
+                    <field-messages name="kerja_ayah" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Pekerjaan Ayah tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.pendidikan_ibu">Pendidikan Ibu</label>
+                    <input class="form-control" v-model="model.pendidikan_ibu" required autofocus name="pendidikan_ibu" type="text" placeholder="Pendidikan Ibu">
+                    <field-messages name="pendidikan_ibu" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Pendidikan Ibu tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.kerja_ibu">Pekerjaan Ibu</label>
+                    <input class="form-control" v-model="model.kerja_ibu" required autofocus name="kerja_ibu" type="text" placeholder="Pekerjaan Ibu">
+                    <field-messages name="kerja_ibu" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Pekerjaan Ibu tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <validate tag="div">
+                    <label for="model.alamat_ortu">Alamat Orang Tua</label>
+                    <input class="form-control" v-model="model.alamat_ortu" required autofocus name="alamat_ortu" type="text" placeholder="Alamat Orang Tua">
+                    <field-messages name="alamat_ortu" show="$invalid && $submitted" class="text-danger">
+                      <small class="form-text text-danger" slot="required">Alamat Orang Tua tidak boleh kosong</small>
+                    </field-messages>
+                  </validate>
+                </div>
+              </div>
+
+              <div class="form-row mt-4">
+                <div class="col-md">
+                  <label for="user_id">Username</label>
+                  <v-select name="user_id" disabled="disabled" v-model="model.user" :options="user" class="mb-4"></v-select>
+                </div>
+              </div>
+
+            </vue-form>
+
           </div>
-
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.no_telp">Nomor Telepon</label>
-              <input class="form-control" v-model="model.no_telp" required autofocus name="no_telp" type="number" placeholder="Nomor Telp">
-              <field-messages name="no_telp" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Nomor Telp is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.nama_ayah">Nama Ayah</label>
-              <input class="form-control" v-model="model.nama_ayah" required autofocus name="nama_ayah" type="text" placeholder="Nama Ayah">
-              <field-messages name="nama_ayah" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Nama Ayah is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.nama_ibu">Nama Ibu</label>
-              <input class="form-control" v-model="model.nama_ibu" required autofocus name="nama_ibu" type="text" placeholder="Nama Ibu">
-              <field-messages name="nama_ibu" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Nama Ibu is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.pendidikan_ayah">Pendidikan Ayah</label>
-              <input class="form-control" v-model="model.pendidikan_ayah" required autofocus name="pendidikan_ayah" type="text" placeholder="Pendidikan Ayah">
-              <field-messages name="pendidikan_ayah" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Pendidikan Ayah is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.kerja_ayah">Pekerjaan Ayah</label>
-              <input class="form-control" v-model="model.kerja_ayah" required autofocus name="kerja_ayah" type="text" placeholder="Pekerjaan Ayah">
-              <field-messages name="kerja_ayah" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Pekerjaan Ayah is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.pendidikan_ibu">Pendidikan Ibu</label>
-              <input class="form-control" v-model="model.pendidikan_ibu" required autofocus name="pendidikan_ibu" type="text" placeholder="Pendidikan Ibu">
-              <field-messages name="pendidikan_ibu" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Pendidikan Ibu is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.kerja_ibu">Pekerjaan Ibu</label>
-              <input class="form-control" v-model="model.kerja_ibu" required autofocus name="kerja_ibu" type="text" placeholder="Pekerjaan Ibu">
-              <field-messages name="kerja_ibu" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Pekerjaan Ibu is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <validate tag="div">
-              <label for="model.alamat_ortu">Alamat Orang Tua</label>
-              <input class="form-control" v-model="model.alamat_ortu" required autofocus name="alamat_ortu" type="text" placeholder="Alamat Orang Tua">
-              <field-messages name="alamat_ortu" show="$invalid && $submitted" class="text-danger">
-                <small class="form-text text-danger" slot="required">Alamat Orang Tua is a required field</small>
-              </field-messages>
-              </validate>
-            </div>
-          </div>
-
-          <div class="form-row mt-4">
-            <div class="col-md">
-              <label for="user_id">Username</label>
-              <v-select name="user_id" disabled="disabled" v-model="model.user" :options="user" class="mb-4"></v-select>
-            </div>
-          </div>
-
-      </vue-form>
-
-          </div><!-- /.card-body -->
-        </div><!-- /.card -->
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
       </tab-content>
+
+      <!-- Review Data -->
+      <tab-content title="Review" icon="fa fa-list">
+        <div class="card mb-3" id="cetak">
+          <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <span id="head">Review</span>
+            <button class="btn btn-sm btn-secondary ml-1" id="tombol_cetak" type="button" @click="cetak">
+              <i class="fa fa-print" aria-hidden="true"></i> print
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="container mb-5">
+              <div class="row">
+                <div class="mx-auto">
+                  <qrcode v-if="terdaftar == true" :value="qrcode.val" :options="{
+                        background: qrcode.bgColor,
+                        foreground: qrcode.fgColor,
+                        size: qrcode.size,
+                        level: 'H'
+                      }" tag="img" class="d-block"></qrcode>
+                </div>
+              </div>
+            </div>
+
+            <dl class="row">
+              <dt class="col-4">Nomor Peserta PPDB</dt>
+              <dd class="col-8">{{ model.nomor_un }}</dd>
+
+              <dt class="col-4">Nama</dt>
+              <dd class="col-8">{{ model.nama_siswa }}</dd>
+
+              <dt class="col-4">Jenis Pendaftaran</dt>
+              <dd class="col-8">{{ model.kegiatan.label }}</dd>
+
+              <dt class="col-4">Sekolah Tujuan</dt>
+              <dd class="col-8">{{ model.sekolah.label }}</dd>
+
+              <dt class="col-4">Program Keahlian</dt>
+              <dd class="col-8">{{ model.prodi_sekolah.label }}</dd>
+
+              <dt class="col-4">Tanggal Pendaftaran</dt>
+              <dd class="col-8">{{ model.tanggal_pendaftaran }}</dd>
+
+              <dt class="col-4">Nilai Bahasa Indonesia</dt>
+              <dd class="col-8">{{nilai_terdaftar.bindo}}</dd>
+
+              <dt class="col-4">Nilai Bahasa Inggris</dt>
+              <dd class="col-8">{{nilai_terdaftar.bingg}}</dd>
+
+              <dt class="col-4">Nilai Metematika</dt>
+              <dd class="col-8">{{nilai_terdaftar.mtk}}</dd>
+
+              <dt class="col-4">Nilai IPA</dt>
+              <dd class="col-8">{{nilai_terdaftar.ipa}}</dd>
+
+              <dt class="col-4">Status</dt>
+              <dd class="col-8">{{status_now}}</dd>
+            </dl>
+
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </tab-content>
+
     </form-wizard>
 
   </div>
 </template>
 
+<style scoped>
+#bg-block {
+  position: absolute;
+  /* background: #00000059; */
+  width: 100%;
+  z-index: 888;
+}
+#loading {
+  position: absolute;
+  z-index: 9999;
+}
+.progress {
+  width: 150px;
+  height: 150px;
+  line-height: 150px;
+  background: none;
+  margin: 0 auto;
+  box-shadow: none;
+  position: relative;
+}
+.progress:after {
+  content: "";
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 12px solid #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.progress > span {
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+}
+.progress .progress-left {
+  left: 0;
+}
+.progress .progress-bar {
+  width: 100%;
+  height: 100%;
+  background: none;
+  border-width: 12px;
+  border-style: solid;
+  position: absolute;
+  top: 0;
+}
+.progress .progress-left .progress-bar {
+  left: 100%;
+  border-top-right-radius: 80px;
+  border-bottom-right-radius: 80px;
+  border-left: 0;
+  -webkit-transform-origin: center left;
+  transform-origin: center left;
+}
+.progress .progress-right {
+  right: 0;
+}
+.progress .progress-right .progress-bar {
+  left: -100%;
+  border-top-left-radius: 80px;
+  border-bottom-left-radius: 80px;
+  border-right: 0;
+  -webkit-transform-origin: center right;
+  transform-origin: center right;
+  animation: loading-1 1.5s linear infinite;
+}
+.progress .progress-value {
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  /* background: #44484b; */
+  font-size: 24px;
+  color: #000;
+  line-height: 135px;
+  text-align: center;
+  position: absolute;
+  top: 5%;
+  left: 5%;
+}
+.progress.blue .progress-bar {
+  border-color: #049dff;
+}
+.progress.blue .progress-left .progress-bar {
+  animation: loading-2 1.5s linear infinite;
+}
+.progress.yellow .progress-bar {
+  border-color: #fdba04;
+}
+.progress.yellow .progress-left .progress-bar {
+  animation: loading-3 1s linear forwards 1.8s;
+}
+.progress.pink .progress-bar {
+  border-color: #ed687c;
+}
+.progress.pink .progress-left .progress-bar {
+  animation: loading-4 0.4s linear forwards 1.8s;
+}
+.progress.green .progress-bar {
+  border-color: #1abc9c;
+}
+.progress.green .progress-left .progress-bar {
+  animation: loading-5 1.2s linear forwards 1.8s;
+}
+@keyframes loading-1 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes loading-2 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes loading-3 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+  }
+}
+@keyframes loading-4 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(36deg);
+    transform: rotate(36deg);
+  }
+}
+@keyframes loading-5 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(126deg);
+    transform: rotate(126deg);
+  }
+}
+@media only screen and (max-width: 990px) {
+  .progress {
+    margin-bottom: 20px;
+  }
+}
+</style>
 
 <script>
-import swal from 'sweetalert2';
-import VueMoment from 'vue-moment'
-import moment from 'moment-timezone'
+import swal from "sweetalert2";
+import VueMoment from "vue-moment";
+import moment from "moment-timezone";
 
 Vue.use(VueMoment, {
-    moment,
-})
+  moment
+});
 
-
-var tanggal={}
+var tanggal = {};
 tanggal.mydate = moment(new Date()).format("YYYY-MM-DD k:mm:ss ");
 
 export default {
-
-  mounted(){
+  mounted() {
     let app = this;
-    this.tahunLulus(),
-    axios.get('api/pendaftaran/create')
-    .then(response => {
-        response.data.kegiatan.forEach(element => {
-          this.kegiatan.push(element);
+    this.beforeTabSwitch2(1),
+      this.tahunLulus(),
+      this.tglLahir(),
+      this.blnLahir(),
+      this.thnLahir(),
+      axios
+        .get("api/pendaftaran/create")
+        .then(async response => {
+          response.data.kegiatan.forEach(element => {
+            this.kegiatan.push(element);
+          });
+
+          this.model.user = response.data.current_user;
+          //this.start_index = response.data.terdaftar == true ? 3 : 0;
+          if (response.data.terdaftar == true) {
+            this.terdaftar = true;
+            /* kegiatan */
+            this.model.kegiatan =
+              response.data.data_terdaftar.pendaftaran.kegiatan;
+            this.model.kegiatan.id =
+              response.data.data_terdaftar.pendaftaran.kegiatan.id;
+            this.model.tanggal_pendaftaran =
+              response.data.data_terdaftar.pendaftaran.tanggal_pendaftaran;
+
+            /* siswa */
+            this.model.nomor_un = response.data.user.name;
+            this.model.nik = response.data.data_terdaftar.siswa.nik;
+            this.model.nama_siswa =
+              response.data.data_terdaftar.siswa.nama_siswa;
+            this.model.no_kk = response.data.data_terdaftar.siswa.no_kk;
+            this.model.alamat_kk = response.data.data_terdaftar.siswa.alamat_kk;
+            this.model.province = response.data.data_terdaftar.siswa.province;
+            this.model.city = response.data.data_terdaftar.siswa.city;
+            this.model.district = response.data.data_terdaftar.siswa.district;
+            this.model.village = response.data.data_terdaftar.siswa.village;
+            this.model.tempat_lahir =
+              response.data.data_terdaftar.siswa.tempat_lahir;
+            this.model.tgl_lahir = response.data.data_terdaftar.siswa.tgl_lahir.slice(
+              8,
+              10
+            );
+            this.model.bln_lahir = response.data.data_terdaftar.siswa.tgl_lahir.slice(
+              5,
+              7
+            );
+            this.model.thn_lahir = response.data.data_terdaftar.siswa.tgl_lahir.slice(
+              0,
+              4
+            );
+            this.model.jenis_kelamin =
+              response.data.data_terdaftar.siswa.jenis_kelamin;
+            this.model.agama = response.data.data_terdaftar.siswa.agama;
+            this.model.nisn = response.data.data_terdaftar.siswa.nisn;
+            this.model.tahun_lulus =
+              response.data.data_terdaftar.siswa.tahun_lulus;
+            this.model.sekolah = response.data.data_terdaftar.siswa.sekolah;
+
+            if (
+              response.data.data_terdaftar.pendaftaran.kegiatan.id == 21 ||
+              response.data.data_terdaftar.pendaftaran.kegiatan.id == 22
+            ) {
+              this.model.prodi_sekolah =
+                response.data.data_terdaftar.siswa.prodi_sekolah.program_keahlian;
+            } else {
+              this.model.prodi_sekolah = { id: 0, label: "-" };
+            }
+
+            /* orang tua */
+
+            this.model.no_telp = response.data.data_terdaftar.orang_tua.no_telp;
+            this.model.nama_ayah =
+              response.data.data_terdaftar.orang_tua.nama_ayah;
+            this.model.nama_ibu =
+              response.data.data_terdaftar.orang_tua.nama_ibu;
+            this.model.pendidikan_ayah =
+              response.data.data_terdaftar.orang_tua.pendidikan_ayah;
+            this.model.kerja_ayah =
+              response.data.data_terdaftar.orang_tua.kerja_ayah;
+            this.model.pendidikan_ibu =
+              response.data.data_terdaftar.orang_tua.pendidikan_ibu;
+            this.model.kerja_ibu =
+              response.data.data_terdaftar.orang_tua.kerja_ibu;
+            this.model.alamat_ortu =
+              response.data.data_terdaftar.orang_tua.alamat_ortu;
+
+            /* nilai */
+            this.nilai_terdaftar.bindo =
+              response.data.data_terdaftar.nilai_un.bahasa_indonesia;
+            this.nilai_terdaftar.bingg =
+              response.data.data_terdaftar.nilai_un.bahasa_inggris;
+            this.nilai_terdaftar.mtk =
+              response.data.data_terdaftar.nilai_un.matematika;
+            this.nilai_terdaftar.ipa =
+              response.data.data_terdaftar.nilai_un.ipa;
+
+            /* prestasi */
+            this.model.jenis_prestasi = response.data.prestasi.master_prestasi;
+            this.model.nama_lomba = response.data.nama_lomba;
+
+            /* sktm */
+            this.model.master_sktm = response.data.sktm.sktm.master_sktm;
+            this.model.no_sktm = response.data.sktm.sktm.no_sktm;
+
+            /* status */
+            this.status_now = response.data.data_terdaftar.status_now;
+
+            this.qrcode.val =
+              window.location.origin + "/check-peserta/" + this.model.nomor_un;
+            this.display = await "display:none";
+            this.display_form = await "display:block";
+          } else {
+            this.terdaftar = false;
+            this.display = await "display:none";
+            this.display_form = await "display:block";
+          }
+        })
+        .catch(function(response) {
+          alert("Break");
         });
-        this.model.user = response.data.current_user;
 
-
-    })
-    .catch(function(response) {
-      alert('Break');
-    });
-        axios.get('api/siswa/create')
+    axios
+      .get("api/siswa/create")
       .then(response => {
         if (response.data.status == true && response.data.error == false) {
+          this.model.nomor_un = response.data.users.name;
+          this.model.no_kk = response.data.data_akademik.nomor_kk;
+          this.model.nama_siswa = response.data.data_akademik.nama_siswa;
+
           this.model.user = response.data.current_user;
-          this.sekolah = response.data.sekolahs;
-          if(response.data.user_special == true){
+          if (response.data.user_special == true) {
             this.user = response.data.users;
-          }else{
+          } else {
             this.user.push(response.data.users);
           }
         } else {
-          swal(
-            'Failed',
-            'Oops... '+response.data.message,
-            'error'
-          );
+          swal("Failed", "Oops... " + response.data.message, "error");
           app.back();
         }
       })
       .catch(function(response) {
-        swal(
-          'Not Found',
-          'Oops... Your page is not found.',
-          'error'
-        );
+        swal("Not Found", "Oops... Your page is not found.", "error");
         app.back();
       });
-    axios.get('api/wilayah-indonesia/province/get')
+    axios
+      .get("api/wilayah-indonesia/province/get")
       .then(response => {
         if (response.data.status == true && response.data.error == false) {
           this.province = response.data.provinces;
         } else {
-          swal(
-            'Failed',
-            'Oops... '+response.data.message,
-            'error'
-          );
+          swal("Failed", "Oops... " + response.data.message, "error");
           app.back();
         }
       })
       .catch(function(response) {
-        swal(
-          'Not Found',
-          'Oops... Your page is not found.',
-          'error'
-        );
+        swal("Not Found", "Oops... Your page is not found.", "error");
+        app.back();
+      });
+    axios
+      .get("api/sekolah/get")
+      .then(async response => {
+        if (response.data.status == true && response.data.error == false) {
+          this.sekolah = response.data.sekolahs;
+          if (this.terdaftar == true) {
+            this.display = await "display:none";
+            this.display_form = await "display:block";
+          }
+        } else {
+          swal("Failed", "Oops... " + response.data.message, "error");
+          app.back();
+        }
+      })
+      .catch(function(response) {
+        swal("Not Found", "Oops... Your page is not found.", "error");
+        app.back();
+      });
+
+    axios
+      .get("api/prestasi/create")
+      .then(response => {
+        if (response.data.status == true) {
+          response.data.master_prestasi.forEach(element => {
+            this.jenis_prestasi.push(element);
+          });
+        } else {
+          alert("Failed");
+        }
+      })
+      .catch(function(response) {
+        swal("Not Found", "Oops... Your page is not found.", "error");
+        app.back();
+      });
+    axios
+      .get("api/master-sktm/get")
+      .then(response => {
+        if (response.data.status == true && response.data.error == false) {
+          this.master_sktm = response.data.master_sktms;
+        } else {
+          swal("Failed", "Oops... " + response.data.message, "error");
+          app.back();
+        }
+      })
+      .catch(function(response) {
+        swal("Not Found", "Oops... Your page is not found.", "error");
         app.back();
       });
   },
   data() {
     return {
+      display: "display:block",
+      display_form: "display:none",
+      start_index: 3,
       state_daftar: {},
       state_siswa: {},
       state_ortu: {},
+      show_review: false,
+      qrcode: {
+        val: window.location.href,
+        bgColor: "#FFFFFF",
+        fgColor: "#000000",
+        size: 140
+      },
+      nilai_terdaftar: {
+        bindo: "",
+        bingg: "",
+        ipa: "",
+        mtk: ""
+      },
+      status_now: "-",
       model: {
         tanggal_pendaftaran: tanggal.mydate,
-        user: "",
+
         kegiatan: "",
 
         nomor_un: "",
         nik: "",
+
         nama_siswa: "",
         alamat_kk: "",
-        province_id: "",
-        city_id: "",
-        district_id: "",
-        village_id: "",
         tempat_lahir: "",
+
         tgl_lahir: "",
+        bln_lahir: "",
+        thn_lahir: "",
         jenis_kelamin: "",
         agama: "",
         nisn: "",
         tahun_lulus: "",
         sekolah_id: "",
+        prodi_sekolah_id: "",
         user_id: "",
         created_at: "",
         updated_at: "",
@@ -596,18 +1029,27 @@ export default {
         district: "",
         village: "",
         sekolah: "",
+        prodi_sekolah: "",
         user: "",
 
-        no_kk : '',
-        no_telp : '',
-        nama_ayah : '',
-        nama_ibu : '',
-        pendidikan_ayah : '',
-        kerja_ayah : '',
-        pendidikan_ibu : '',
-        kerja_ibu : '',
-        alamat_ortu : '',
+        jenis_prestasi: "",
+        nama_lomba: "",
+
+        no_sktm: "",
+        master_sktm: "",
+
+        no_kk: "",
+        no_telp: "",
+        nama_ayah: "",
+        nama_ibu: "",
+        pendidikan_ayah: "",
+        kerja_ayah: "",
+        pendidikan_ibu: "",
+        kerja_ibu: "",
+        alamat_ortu: ""
       },
+      jenis_prestasi: [],
+      master_sktm: [],
       kegiatan: [],
       user: [],
       tahun_lulus: [],
@@ -617,6 +1059,24 @@ export default {
       district: [],
       village: [],
       sekolah: [],
+      sekolah_filter: [],
+      prodi_sekolah: [],
+      disable_prodi_sekolah: "",
+      required_prodi_sekolah: "",
+
+      disable_jenis_prestasi: "",
+      required_jenis_prestasi: "",
+
+      disable_nama_lomba: "",
+      required_nama_lomba: "",
+
+      start_index: 0,
+      terdaftar: false,
+
+      /* tgl lahir */
+      tgl_lahir: [],
+      bln_lahir: [],
+      thn_lahir: [],
 
       formOptions: {
         validationErrorClass: "has-error",
@@ -625,48 +1085,105 @@ export default {
       },
 
       jenis_kelamin: [
-        {id: 1, label: 'Laki-laki'},
-        {id: 2, label: 'Perempuan'}
+        { id: 1, label: "Laki-laki" },
+        { id: 2, label: "Perempuan" }
       ],
-      selectedJenisKelamin: {id: "-", label: 'Pilih Salah Satu'},
+      selectedJenisKelamin: { id: "-", label: "Pilih Salah Satu" },
 
       agama: [
-        {id: 1, label: 'Islam'},
-        {id: 2, label: 'Kristen Protestan'},
-        {id: 3, label: 'Kristen Katolik'},
-        {id: 4, label: 'Hindu'},
-        {id: 5, label: 'Buddha'},
-        {id: 6, label: 'Khonghucu'}
+        { id: 1, label: "Islam" },
+        { id: 2, label: "Kristen Protestan" },
+        { id: 3, label: "Kristen Katolik" },
+        { id: 4, label: "Hindu" },
+        { id: 5, label: "Buddha" },
+        { id: 6, label: "Khonghucu" }
       ],
-      selectedAgama: {id: "-", label: 'Pilih Salah Satu'},
-    }
+      selectedAgama: { id: "-", label: "Pilih Salah Satu" }
+    };
+  },
+  computed: {
+    /* checkStatus() {
+      return this.display;
+    } */
   },
   methods: {
-    tahunLulus: function(){
+    checkStatus() {
+      return this.display;
+    },
+    cetak() {
+      var content = document.getElementById("cetak").innerHTML;
+      var mywindow = window.open("", "Print", "height=600,width=800");
 
-      for(var i = ((new Date()).getFullYear() - 10); i <= (new Date()).getFullYear(); i++)
-      {
-        this.tahun_lulus.push({id:i,label:`${i}`});
+      mywindow.document.write("<html><head><title>Print</title>");
+      mywindow.document.write(`</head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
+      <body >`);
+      mywindow.document.write(content);
+      mywindow.document.getElementById("head").innerHTML =
+        "Kartu Peserta PPDB 2018";
+      mywindow.document.getElementById("tombol_cetak").style.display = "none";
+
+      mywindow.document.write("</body></html>");
+
+      mywindow.focus();
+
+      return true;
+    },
+
+    tglLahir() {
+      for (var i = 1; i <= 31; i++) {
+        this.tgl_lahir.push({ id: i, label: `${i}` });
       }
     },
-    beforeTabSwitch1: function(){
+
+    blnLahir() {
+      this.bln_lahir = [
+        { id: "01", label: "Januari" },
+        { id: "02", label: "Februari" },
+        { id: "03", label: "Maret" },
+        { id: "04", label: "April" },
+        { id: "05", label: "Mei" },
+        { id: "06", label: "Juni" },
+        { id: "07", label: "Juli" },
+        { id: "08", label: "Agustus" },
+        { id: "09", label: "September" },
+        { id: "10", label: "Oktober" },
+        { id: "11", label: "November" },
+        { id: "12", label: "Desember" }
+      ];
+    },
+
+    thnLahir() {
+      for (var i = 1980; i <= new Date().getFullYear(); i++) {
+        this.thn_lahir.push({ id: i, label: `${i}` });
+      }
+    },
+
+    tahunLulus: function() {
+      for (
+        var i = new Date().getFullYear() - 10;
+        i <= new Date().getFullYear();
+        i++
+      ) {
+        this.tahun_lulus.push({ id: i, label: `${i}` });
+      }
+    },
+    beforeTabSwitch1: function() {
       let app = this;
 
-     //alert("This is called before switchind tabs")
-      if (this.state_daftar.$invalid  ) {
-        miniToastr.error('Data Tidak Lengkap', 'ERROR')
+      if (this.state_daftar.$invalid) {
+        miniToastr.error("Data Tidak Lengkap", "ERROR");
         this.state_daftar.$submitted = true;
         return false;
       } else {
         return true;
       }
     },
-    beforeTabSwitch2: function(){
+    beforeTabSwitch2: function() {
       let app = this;
 
-     //alert("This is called before switchind tabs")
-      if (this.state_siswa.$invalid ) {
-        miniToastr.error('Data Tidak Lengkap', 'ERROR')
+      if (this.state_siswa.$invalid) {
+        miniToastr.error("Data Tidak Lengkap", "ERROR");
         this.state_siswa.$submitted = true;
         return false;
       } else {
@@ -674,128 +1191,157 @@ export default {
       }
     },
 
-
-    // onComplete: function () {
-    //   miniToastr.success('Yay. Done!', 'Success');
-    // },
-
-    onComplete: function() {
+    beforeTabSwitch3: function() {
       let app = this;
 
       if (this.state_ortu.$invalid) {
-        miniToastr.error('Data Orangtua Tidak Lengkap', 'ERROR');
-        return;
+        miniToastr.error("Data Tidak Lengkap", "ERROR");
+        this.state_ortu.$submitted = true;
+        return false;
       } else {
-        axios.post('api/pendaftaran', {
+        return true;
+      }
+    },
+
+    onComplete: function() {
+      let app = this;
+      console.log(this.model.jenis_prestasi.id);
+
+      if (this.state_ortu.$invalid) {
+        miniToastr.error("Data Orangtua Tidak Lengkap", "ERROR");
+        this.state_ortu.$submitted = true;
+        return false;
+      } else {
+        axios
+          .post("api/pendaftaran-wizard", {
             kegiatan_id: this.model.kegiatan.id,
-            user_id: this.model.user.id
-          })
-        .then(response => {
-            console.log(response.data.status);
-            if (response.data.status == true) {
-              if(response.data.message == 'success'){
-                //miniToastr.success(response.data.message, 'Success:');
-                //alert(response.data.message);
-                app.back();
-              }else{
-                alert(response.data.message);
-              }
-            } else {
-              alert(response.data.message);
-            }
-          })
+            user_id: this.model.user.id,
+            nomor_un: this.model.nomor_un,
+            nik: this.model.nik,
+            nama_siswa: this.model.nama_siswa,
+            no_kk: this.model.no_kk,
+            alamat_kk: this.model.alamat_kk,
+            province_id: this.model.province.id,
+            city_id: this.model.city.id,
+            district_id: this.model.district.id,
+            village_id: this.model.village.id,
+            tempat_lahir: this.model.tempat_lahir,
+            tgl_lahir:
+              this.model.thn_lahir.id +
+              "-" +
+              this.model.bln_lahir.id +
+              "-" +
+              this.model.tgl_lahir.id,
+            jenis_kelamin: this.model.jenis_kelamin.label,
+            agama: this.model.agama.label,
+            nisn: this.model.nisn,
+            tahun_lulus: this.model.tahun_lulus.id,
+            sekolah_id: this.model.sekolah.id,
+            prodi_sekolah_id: this.model.prodi_sekolah.id,
+            user_id: this.model.user.id,
+            no_telp: this.model.no_telp,
+            nama_ayah: this.model.nama_ayah,
+            nama_ibu: this.model.nama_ibu,
+            pendidikan_ayah: this.model.pendidikan_ayah,
+            kerja_ayah: this.model.kerja_ayah,
+            pendidikan_ibu: this.model.pendidikan_ibu,
+            kerja_ibu: this.model.kerja_ibu,
+            alamat_ortu: this.model.alamat_ortu,
 
-         axios.post('api/siswa', {
-            nomor_un:       this.model.nomor_un,
-            nik:            this.model.nik,
-            nama_siswa:     this.model.nama_siswa,
-            no_kk:          this.model.no_kk,
-            alamat_kk:      this.model.alamat_kk,
-            province_id:    this.model.province.id,
-            city_id:        this.model.city.id,
-            district_id:    this.model.district.id,
-            village_id:     this.model.village.id,
-            tempat_lahir:   this.model.tempat_lahir,
-            tgl_lahir:      this.model.tgl_lahir,
-            jenis_kelamin:  this.model.jenis_kelamin,
-            agama:          this.model.agama,
-            nisn:           this.model.nisn,
-            tahun_lulus:    this.model.tahun_lulus,
-            sekolah_id:     this.model.sekolah.id,
-            user_id:        this.model.user.id,
+            master_prestasi_id: this.model.jenis_prestasi.id,
+            nama_lomba: this.model.nama_lomba,
+
+            master_sktm_id: this.model.master_sktm.id,
+            no_sktm: this.model.no_sktm
           })
           .then(response => {
             if (response.data.status == true) {
-              if(response.data.error == false){
-                swal(
-                  'Created',
-                  'Yeah!!! Your data has been created.',
-                  'success'
-                );
-                app.back();
-              }else{
-                swal(
-                  'Failed',
-                  'Oops... '+response.data.message,
-                  'error'
-                );
-              }
-            } else {
               swal(
-                'Failed',
-                'Oops... '+response.data.message,
-                'error'
-              );
-              app.back();
-            }
-          })
-          .catch(function(response) {
-            swal(
-              'Not Found',
-              'Oops... Your page is not found.',
-              'error'
-            );
-            app.back();
-          });
+                response.data.title,
+                response.data.message,
+                response.data.type
+              ).then(result => {
+                if (!response.data.error == true) {
+                  window.location.reload();
+                } else {
+                  return false;
+                }
+              });
 
-         axios.post('api/orang-tua', {
-            user_id : this.model.user.id,
-            nomor_un : this.model.nomor_un,
-            no_telp : this.model.no_telp,
-            nama_ayah : this.model.nama_ayah,
-            nama_ibu : this.model.nama_ibu,
-            pendidikan_ayah : this.model.pendidikan_ayah,
-            kerja_ayah : this.model.kerja_ayah,
-            pendidikan_ibu : this.model.pendidikan_ibu,
-            kerja_ibu : this.model.kerja_ibu,
-            alamat_ortu : this.model.alamat_ortu
-          })
-          .then(response => {
-            console.log(response.data.status);
-            if (response.data.status == true) {
-              if(response.data.message == 'success'){
-                miniToastr.success(response.data.message, 'Success:');
-                //alert(response.data.message);
-                app.back();
-              }else{
-                alert(response.data.message);
-              }
-            } else {
-              alert(response.data.message);
+              this.terdaftar = true;
+              this.qrcode.val =
+                window.location.origin +
+                "/check-peserta/" +
+                this.model.nomor_un;
             }
           })
-          .catch(function(response) {
-            miniToastr.error('Ada kesalahan data', 'Error:');
-            //alert('Break');
+          .catch(response => {
+            swal(
+              "Pendaftaran Gagal",
+              "Telah terjadi kesalahan, mohon ulangi penginputan data.",
+              "error"
+            );
           });
       }
     },
-        changeProvince() {
-      if (typeof this.model.province.id === 'undefined') {
+    kegiatanChange() {
+      this.sekolah_filter = [];
+      if (this.terdaftar == false) {
+        this.model.sekolah = "";
+        this.model.prodi_sekolah = "";
+      }
+
+      this.model.required_prodi_sekolah = true;
+
+      if (this.model.kegiatan.id == 11 || this.model.kegiatan.id == 21) {
+        this.disable_jenis_prestasi = false;
+        this.required_jenis_prestasi = true;
+
+        this.disable_nama_lomba = false;
+        this.required_nama_lomba = true;
+      } else {
+        this.disable_jenis_prestasi = true;
+        this.required_jenis_prestasi = false;
+
+        this.disable_nama_lomba = true;
+        this.required_nama_lomba = false;
+      }
+
+      if (this.model.kegiatan.id == 11 || this.model.kegiatan.id == 12) {
+        this.disable_prodi_sekolah = true;
+        this.required_prodi_sekolah = false;
+
+        for (var i = 0; i < this.sekolah.length; i++) {
+          if (
+            this.sekolah[i].label.includes("SMA") &&
+            this.sekolah[i].city_id.includes(this.model.no_kk.slice(0, 4))
+          ) {
+            this.sekolah_filter.push(this.sekolah[i]);
+          }
+        }
+      } else if (this.model.kegiatan.id == 21 || this.model.kegiatan.id == 22) {
+        this.disable_prodi_sekolah = false;
+        this.required_prodi_sekolah = true;
+
+        for (var i = 0; i < this.sekolah.length; i++) {
+          if (this.sekolah[i].label.includes("SMK")) {
+            this.sekolah_filter.push(this.sekolah[i]);
+          }
+        }
+      }
+    },
+    changeProvince() {
+      if (typeof this.model.province.id === "undefined") {
         this.model.city = "";
       } else {
-        this.model.city = "";
-        axios.get('api/wilayah-indonesia/city/get/by-province/'+this.model.province.id)
+        if (this.terdaftar == false) {
+          this.model.city = "";
+        }
+        axios
+          .get(
+            "api/wilayah-indonesia/city/get/by-province/" +
+              this.model.province.id
+          )
           .then(response => {
             if (response.data.status == true && response.data.error == false) {
               this.city = response.data.cities;
@@ -804,11 +1350,17 @@ export default {
       }
     },
     changeCity() {
-      if (typeof this.model.city.id === 'undefined') {
+      if (typeof this.model.city.id === "undefined") {
         this.model.district = "";
       } else {
-        this.model.district = "";
-        axios.get('api/wilayah-indonesia/district/get/by-city/'+this.model.city.id)
+        if (this.terdaftar == false) {
+          this.model.district = "";
+        }
+
+        axios
+          .get(
+            "api/wilayah-indonesia/district/get/by-city/" + this.model.city.id
+          )
           .then(response => {
             if (response.data.status == true && response.data.error == false) {
               this.district = response.data.districts;
@@ -817,11 +1369,17 @@ export default {
       }
     },
     changeDistrict() {
-      if (typeof this.model.district.id === 'undefined') {
+      if (typeof this.model.district.id === "undefined") {
         this.model.village = "";
       } else {
-        this.model.village = "";
-        axios.get('api/wilayah-indonesia/village/get/by-district/'+this.model.district.id)
+        if (this.terdaftar == false) {
+          this.model.village = "";
+        }
+        axios
+          .get(
+            "api/wilayah-indonesia/village/get/by-district/" +
+              this.model.district.id
+          )
           .then(response => {
             if (response.data.status == true && response.data.error == false) {
               this.village = response.data.villages;
@@ -829,16 +1387,31 @@ export default {
           });
       }
     },
+    changeSekolah() {
+      if (this.terdaftar == false) {
+        this.model.prodi_sekolah = "";
+      }
+      if (typeof this.model.sekolah.id !== "undefined") {
+        axios
+          .get("api/prodi-sekolah/get/by-sekolah/" + this.model.sekolah.id)
+          .then(response => {
+            if (response.data.status == true && response.data.error == false) {
+              this.prodi_sekolah = response.data.prodi_sekolahs;
+            }
+          });
+      }
+    },
     reset() {
       this.model = {
-          label: "",
-          description: ""
+        label: "",
+        description: ""
       };
     },
     back() {
-      window.location = '#/dashboard';
+      window.location = "#/dashboard";
     }
   }
-}
+};
 </script>
+
 
